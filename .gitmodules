@@ -1,3 +1,6 @@
 [submodule "git"]
 	path = git
 	url = https://github.com/git/git.git
+[submodule "git-fat"]
+	path = git-fat
+	url = https://github.com/jedbrown/git-fat.git
