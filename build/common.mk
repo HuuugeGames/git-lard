@@ -1,4 +1,6 @@
 SRCPATH = ../src
+GITDIR = ../git
+GITLIB = $(GITDIR)/libgit.a
 
 INCLUDES = -I$(SRCPATH)
 
@@ -18,8 +20,11 @@ OBJS = $(TMPOBJS2:.c=.o)
 
 OBJS := $(patsubst %,$(BUILDDIR)/%,$(OBJS))
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(GITLIB)
 	$(CXX) $(OBJS) $(CXXFLAGS) $(LIBS) -o $(TARGET)
+
+$(GITLIB):
+	+make -C $(GITDIR) libgit.a
 
 $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p $(@D)
@@ -50,6 +55,7 @@ endif
 clean:
 	rm -rf $(BUILD)$(POSTFIX)
 	rm -f $(TARGET)
+	make -C $(GITDIR) clean
 
 .PHONY: clean all help
 .SUFFIXES:
