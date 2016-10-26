@@ -1,2 +1,4 @@
 SOURCES = \
-	$(SRCPATH)/git-lard.cpp
+	$(SRCPATH)/git-lard.cpp \
+	$(SRCPATH)/Debug.cpp \
+	$(SRCPATH)/Filesystem.cpp
