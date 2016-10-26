@@ -4,7 +4,7 @@ GITLIB = $(GITDIR)/libgit.a
 
 INCLUDES = -I$(SRCPATH)
 
-LIBS :=
+LIBS := $(GITLIB)
 CFLAGS := $(OPTFLAGS)
 CXXFLAGS = $(CFLAGS) -std=c++14
 
