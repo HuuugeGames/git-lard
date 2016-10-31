@@ -2,10 +2,10 @@ SRCPATH = ../src
 GITDIR = ../git
 GITLIB = $(GITDIR)/libgit.a
 
-INCLUDES = -I$(SRCPATH)
+INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
 LIBS := $(GITLIB)
-CFLAGS := $(OPTFLAGS)
+CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>'
 CXXFLAGS = $(CFLAGS) -std=c++14
 
 TARGET = git-lard
