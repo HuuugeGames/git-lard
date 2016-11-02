@@ -23,3 +23,8 @@ const char* GetGitDir()
     sprintf( s_tmpbuf, "%s%s.git", cwd, len && cwd[len-1] != '/' ? "/" : "" );
     return s_tmpbuf;
 }
+
+const char* GetGitWorkTree()
+{
+    return get_git_work_tree();
+}
