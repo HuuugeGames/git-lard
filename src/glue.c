@@ -28,3 +28,9 @@ const char* GetGitWorkTree()
 {
     return get_git_work_tree();
 }
+
+int CheckIfConfigKeyExists( const char* key )
+{
+    const char** tmp;
+    return git_config_get_value( key, tmp );
+}
