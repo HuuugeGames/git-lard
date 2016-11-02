@@ -10,6 +10,8 @@ public:
     ~Lard();
 
 private:
+    void Setup();
+
     std::string m_gitdir;
     std::string m_objdir;
 };

@@ -1,4 +1,5 @@
 #include "Debug.hpp"
+#include "Filesystem.hpp"
 #include "glue.h"
 #include "Lard.hpp"
 
@@ -13,4 +14,9 @@ Lard::Lard()
 
 Lard::~Lard()
 {
+}
+
+void Lard::Setup()
+{
+    CreateDirStruct( m_objdir );
 }
