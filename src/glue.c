@@ -31,6 +31,6 @@ const char* GetGitWorkTree()
 
 int CheckIfConfigKeyExists( const char* key )
 {
-    const char** tmp;
-    return git_config_get_value( key, tmp );
+    const char* tmp;
+    return git_config_get_value( key, &tmp );
 }
