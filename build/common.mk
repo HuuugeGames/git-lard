@@ -1,10 +1,11 @@
 SRCPATH = ../src
 GITDIR = ../git
 GITLIB = $(GITDIR)/libgit.a
+XDIFFLIB = $(GITDIR)/xdiff/lib.a
 
 INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
-LIBS := $(GITLIB)
+LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
 CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>'
 CXXFLAGS = $(CFLAGS) -std=c++14
 
@@ -20,11 +21,14 @@ OBJS = $(TMPOBJS2:.c=.o)
 
 OBJS := $(patsubst %,$(BUILDDIR)/%,$(OBJS))
 
-$(TARGET): $(OBJS) $(GITLIB)
+$(TARGET): $(OBJS) $(GITLIB) $(XDIFFLIB)
 	$(CXX) $(OBJS) $(CXXFLAGS) $(LIBS) -o $(TARGET)
 
 $(GITLIB):
 	+make -C $(GITDIR) libgit.a
+
+$(XDIFFLIB):
+	+make -C $(GITDIR) xdiff/lib.a
 
 $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p $(@D)
