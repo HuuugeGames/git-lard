@@ -20,3 +20,8 @@ void Lard::Setup()
 {
     CreateDirStruct( m_objdir );
 }
+
+bool Lard::IsInitDone()
+{
+    return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
+}

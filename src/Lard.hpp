@@ -11,6 +11,7 @@ public:
 
 private:
     void Setup();
+    bool IsInitDone();
 
     std::string m_gitdir;
     std::string m_objdir;
