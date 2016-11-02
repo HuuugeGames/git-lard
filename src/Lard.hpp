@@ -10,8 +10,8 @@ public:
     ~Lard();
 
 private:
-    std::string m_gitroot;
     std::string m_gitdir;
+    std::string m_objdir;
 };
 
 #endif
