@@ -34,3 +34,8 @@ int CheckIfConfigKeyExists( const char* key )
     const char* tmp;
     return git_config_get_value( key, &tmp );
 }
+
+void SetConfigKey( const char* key, const char* val )
+{
+    git_config_set( key, val );
+}
