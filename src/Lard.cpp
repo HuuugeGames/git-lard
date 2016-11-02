@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "Debug.hpp"
 #include "Filesystem.hpp"
 #include "glue.h"
@@ -14,6 +16,21 @@ Lard::Lard()
 
 Lard::~Lard()
 {
+}
+
+void Lard::Init()
+{
+    Setup();
+    if( IsInitDone() )
+    {
+        printf( "Git lard already configured, check configuration in .git/config\n" );
+        printf( "    Note: migration from git-fat may require changing executable name.\n" );
+    }
+    else
+    {
+        SetConfigKey( "filter.fat.clean", "git-fat filter-clean" );
+        SetConfigKey( "filter.fat.smudge", "git-fat filter-smudge" );
+    }
 }
 
 void Lard::Setup()

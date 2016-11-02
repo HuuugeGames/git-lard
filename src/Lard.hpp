@@ -9,6 +9,8 @@ public:
     Lard();
     ~Lard();
 
+    void Init();
+
 private:
     void Setup();
     bool IsInitDone();

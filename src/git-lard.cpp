@@ -41,6 +41,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "init" ) )
     {
+        lard.Init();
     }
     else if( CSTR( "status" ) )
     {
