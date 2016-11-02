@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "Debug.hpp"
+#include "Lard.hpp"
 
 struct StdErrDebugCallback : public DebugLog::Callback
 {
@@ -30,8 +30,7 @@ int main( int argc, char** argv )
     auto err = std::make_unique<StdErrDebugCallback>();
     DebugLog::AddCallback( err.get() );
 
-    char workdir[1024];
-    getcwd( workdir, 1024 );
+    Lard lard;
 
 #define CSTR(x) strcmp( argv[1], x ) == 0
     if( CSTR( "filter-clean" ) )
