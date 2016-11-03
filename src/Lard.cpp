@@ -36,6 +36,8 @@ void Lard::Init()
 void Lard::Status( int argc, char** argv )
 {
     Setup();
+    const auto catalog = ListDirectory( m_objdir );
+    DBGPRINT( "Fat objects: " << catalog.size() );
 }
 
 void Lard::Setup()
