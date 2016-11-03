@@ -29,9 +29,13 @@ bool CreateDirStruct( const std::string& path )
         pos = path.find( '/', pos+1 );
 #ifdef _WIN32
         if( pos == 2 ) continue;    // Don't create drive name.
-        if( _mkdir( path.substr( 0, pos ).c_str() ) != 0 )
+#endif
+        auto p = path.substr( 0, pos );
+        if( Exists( p ) ) continue;
+#ifdef _WIN32
+        if( _mkdir( p.c_str() ) != 0 )
 #else
-        if( mkdir( path.substr( 0, pos ).c_str(), S_IRWXU ) != 0 )
+        if( mkdir( p.c_str(), S_IRWXU ) != 0 )
 #endif
         {
             if( errno != EEXIST )
