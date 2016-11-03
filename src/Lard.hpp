@@ -10,6 +10,7 @@ public:
     ~Lard();
 
     void Init();
+    void Status( int argc, char** argv );
 
 private:
     void Setup();

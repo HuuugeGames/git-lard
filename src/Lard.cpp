@@ -33,6 +33,11 @@ void Lard::Init()
     }
 }
 
+void Lard::Status( int argc, char** argv )
+{
+    Setup();
+}
+
 void Lard::Setup()
 {
     CreateDirStruct( m_objdir );
