@@ -5,9 +5,13 @@ XDIFFLIB = $(GITDIR)/xdiff/lib.a
 
 INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
-LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib) -lintl -liconv
+LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
 CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>'
 CXXFLAGS = $(CFLAGS) -std=c++14
+
+ifneq (,$(WINDIR))
+LIBS += -lintl -liconv
+endif
 
 TARGET = git-lard
 
