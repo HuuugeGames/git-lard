@@ -2,3 +2,4 @@ build/debug
 build/profile
 build/release
 build/git-lard
+*.un~
