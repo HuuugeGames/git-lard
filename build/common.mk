@@ -5,7 +5,7 @@ XDIFFLIB = $(GITDIR)/xdiff/lib.a
 
 INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
-LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
+LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib) -lintl -liconv
 CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>'
 CXXFLAGS = $(CFLAGS) -std=c++14
 
