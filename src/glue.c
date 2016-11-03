@@ -21,6 +21,7 @@ const char* GetGitDir()
     char* cwd = xgetcwd();
     int len = strlen( cwd );
     sprintf( s_tmpbuf, "%s%s.git", cwd, len && cwd[len-1] != '/' ? "/" : "" );
+    free( cwd );
     return s_tmpbuf;
 }
 
