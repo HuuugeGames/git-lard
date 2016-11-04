@@ -4,8 +4,10 @@
 
 #include "git/cache.h"
 #include "git/git-compat-util.h"
+#include "git/revision.h"
 
 #include "glue.h"
+#include "verify.h"
 
 static char s_tmpbuf[4096];
 
@@ -39,4 +41,32 @@ int CheckIfConfigKeyExists( const char* key )
 void SetConfigKey( const char* key, const char* val )
 {
     git_config_set( key, val );
+}
+
+struct rev_info* NewRevInfo()
+{
+    struct rev_info* revs = (struct rev_info*)malloc( sizeof( struct rev_info ) );
+    init_revisions( revs, NULL );
+    return revs;
+}
+
+void AddRevHead( struct rev_info* revs )
+{
+    add_head_to_pending( revs );
+}
+
+void AddRevAll( struct rev_info* revs )
+{
+    const char* argv[2] = { "", "--all" };
+    verify( setup_revisions( 2, argv, revs, NULL ) == 1 );
+}
+
+void PrepareRevWalk( struct rev_info* revs )
+{
+    verify( prepare_revision_walk( revs ) == 0 );
+}
+
+struct commit* GetRevision( struct rev_info* revs )
+{
+    return get_revision( revs );
 }
