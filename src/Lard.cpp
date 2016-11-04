@@ -1,9 +1,19 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "Debug.hpp"
 #include "Filesystem.hpp"
 #include "glue.h"
 #include "Lard.hpp"
+
+static int checkarg( int argc, char** argv, const char* arg )
+{
+    for( int i=0; i<argc; i++ )
+    {
+        if( strcmp( argv[i], arg ) == 0 ) return i;
+    }
+    return -1;
+}
 
 Lard::Lard()
 {
