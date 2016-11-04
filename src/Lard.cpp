@@ -48,6 +48,8 @@ void Lard::Status( int argc, char** argv )
     Setup();
     const auto catalog = ListDirectory( m_objdir );
     DBGPRINT( "Fat objects: " << catalog.size() );
+    bool all = checkarg( argc, argv, "--all" ) != -1;
+    auto referenced = ReferencedObjects( all );
 }
 
 void Lard::Setup()
