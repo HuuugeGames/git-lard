@@ -74,9 +74,12 @@ std::unordered_set<std::string> Lard::ReferencedObjects( bool all )
         AddRevHead( revs );
     }
     PrepareRevWalk( revs );
+    int cnt = 0;
     while( auto c = GetRevision( revs ) )
     {
+        cnt++;
     }
+    DBGPRINT( "walked " << cnt << " revisions" );
     free( revs );
     return std::unordered_set<std::string>();
 }
