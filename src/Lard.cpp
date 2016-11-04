@@ -59,3 +59,22 @@ bool Lard::IsInitDone()
 {
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
+
+std::unordered_set<std::string> Lard::ReferencedObjects( bool all )
+{
+    rev_info* revs = NewRevInfo();
+    if( all )
+    {
+        AddRevAll( revs );
+    }
+    else
+    {
+        AddRevHead( revs );
+    }
+    PrepareRevWalk( revs );
+    while( auto c = GetRevision( revs ) )
+    {
+    }
+    free( revs );
+    return std::unordered_set<std::string>();
+}

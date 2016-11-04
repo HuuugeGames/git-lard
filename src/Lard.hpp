@@ -2,6 +2,7 @@
 #define __LARD_HPP__
 
 #include <string>
+#include <unordered_set>
 
 class Lard
 {
@@ -15,6 +16,8 @@ public:
 private:
     void Setup();
     bool IsInitDone();
+
+    std::unordered_set<std::string> ReferencedObjects( bool all );
 
     std::string m_gitdir;
     std::string m_objdir;
