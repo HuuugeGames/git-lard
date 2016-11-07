@@ -5,6 +5,7 @@
 #include "git/cache.h"
 #include "git/git-compat-util.h"
 #include "git/revision.h"
+#include "git/list-objects.h"
 
 #include "glue.h"
 #include "verify.h"
@@ -69,4 +70,21 @@ void PrepareRevWalk( struct rev_info* revs )
 struct commit* GetRevision( struct rev_info* revs )
 {
     return get_revision( revs );
+}
+
+static void null_show_commit( struct commit* a, void* b ) {}
+
+static void show_object( struct object* obj, const char* name, void* data )
+{
+    if( obj->type == OBJ_BLOB )
+    {
+        printf( "%s\n", name );
+    }
+}
+
+void GetObjectsFromRevs( struct rev_info* revs )
+{
+    revs->blob_objects = 1;
+    revs->tree_objects = 1;
+    traverse_commit_list( revs, null_show_commit, show_object, NULL );
 }
