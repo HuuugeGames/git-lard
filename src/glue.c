@@ -78,7 +78,13 @@ static void show_object( struct object* obj, const char* name, void* data )
 {
     if( obj->type == OBJ_BLOB )
     {
-        printf( "%s\n", name );
+        enum object_type type;
+        unsigned long size;
+        read_sha1_file( obj->oid.hash, &type, &size );
+        if( size == 74 )
+        {
+            printf( "%s\n", name );
+        }
     }
 }
 
