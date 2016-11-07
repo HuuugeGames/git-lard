@@ -29,10 +29,10 @@ $(TARGET): $(OBJS) $(GITLIB) $(XDIFFLIB)
 	$(CXX) $(OBJS) $(CXXFLAGS) $(LIBS) -o $(TARGET)
 
 $(GITLIB):
-	+make -C $(GITDIR) libgit.a
+	+make -C $(GITDIR) libgit.a CFLAGS="$(CFLAGS)"
 
 $(XDIFFLIB):
-	+make -C $(GITDIR) xdiff/lib.a
+	+make -C $(GITDIR) xdiff/lib.a CFLAGS="$(CFLAGS)"
 
 $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p $(@D)
