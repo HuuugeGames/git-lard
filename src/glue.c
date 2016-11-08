@@ -10,6 +10,8 @@
 #include "glue.h"
 #include "verify.h"
 
+enum { GitFatMagic = 74 };
+
 static char s_tmpbuf[4096];
 
 void SetupGitDirectory()
@@ -81,17 +83,20 @@ static void show_object( struct object* obj, const char* name, void* data )
         enum object_type type;
         unsigned long size;
         void* ptr = read_sha1_file( obj->oid.hash, &type, &size );
-        if( size == 74 )
+        if( size == GitFatMagic )
         {
-            printf( "%s\n", name );
+            if( memcmp( ptr, "#$# git-fat ", 12 ) == 0 )
+            {
+                ((void(*)(char*))data)( ptr );
+            }
         }
         free( ptr );
     }
 }
 
-void GetObjectsFromRevs( struct rev_info* revs )
+void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) )
 {
     revs->blob_objects = 1;
     revs->tree_objects = 1;
-    traverse_commit_list( revs, null_show_commit, show_object, NULL );
+    traverse_commit_list( revs, null_show_commit, show_object, cb );
 }

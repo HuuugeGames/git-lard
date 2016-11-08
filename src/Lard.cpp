@@ -62,8 +62,17 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
+static std::unordered_set<std::string>* s_susssret;
+
 std::unordered_set<std::string> Lard::ReferencedObjects( bool all )
 {
+    std::unordered_set<std::string> ret;
+    s_susssret = &ret;
+
+    auto cb = []( char* ptr ) {
+        s_susssret->emplace( ptr + 12, 40 );
+    };
+
     rev_info* revs = NewRevInfo();
     if( all )
     {
@@ -74,7 +83,8 @@ std::unordered_set<std::string> Lard::ReferencedObjects( bool all )
         AddRevHead( revs );
     }
     PrepareRevWalk( revs );
-    GetObjectsFromRevs( revs );
+    GetObjectsFromRevs( revs, cb );
     free( revs );
-    return std::unordered_set<std::string>();
+
+    return ret;
 }
