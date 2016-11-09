@@ -11,6 +11,7 @@ CXXFLAGS = $(CFLAGS) -std=c++14
 
 ifneq (,$(WINDIR))
 LIBS += -lintl -liconv
+CFLAGS += -DWIN32
 endif
 
 TARGET = git-lard
