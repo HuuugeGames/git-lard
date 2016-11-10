@@ -6,8 +6,10 @@
 #include <sys/stat.h>
 #include <unordered_set>
 
+#include "StringHelpers.hpp"
+
 bool CreateDirStruct( const std::string& path );
-std::unordered_set<std::string> ListDirectory( const std::string& path );
+std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ListDirectory( const std::string& path );
 
 #ifdef _MSC_VER
 #  define stat64 _stat64

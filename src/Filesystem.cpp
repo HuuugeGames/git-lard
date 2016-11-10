@@ -1,3 +1,4 @@
+#include "Buffer.hpp"
 #include "Filesystem.hpp"
 
 #ifdef _MSC_VER
@@ -50,9 +51,9 @@ bool CreateDirStruct( const std::string& path )
     return true;
 }
 
-std::unordered_set<std::string> ListDirectory( const std::string& path )
+std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ListDirectory( const std::string& path )
 {
-    std::unordered_set<std::string> ret;
+    std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ret;
 
 #ifdef _MSC_VER
     WIN32_FIND_DATA ffd;
@@ -82,7 +83,7 @@ std::unordered_set<std::string> ListDirectory( const std::string& path )
             {
                 s += "/";
             }
-            ret.emplace( std::move( s ) );
+            ret.emplace( Buffer::Store( s.c_str() ) );
         }
     }
     while( FindNextFile( h, &ffd ) );
@@ -105,7 +106,7 @@ std::unordered_set<std::string> ListDirectory( const std::string& path )
             {
                 s += "/";
             }
-            ret.emplace( std::move( s ) );
+            ret.emplace( Buffer::Store( s.c_str() ) );
         }
     }
     closedir( dir );

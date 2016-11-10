@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "Buffer.hpp"
 #include "Debug.hpp"
 #include "Filesystem.hpp"
 #include "glue.h"
@@ -62,15 +63,15 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
-static std::unordered_set<std::string>* s_susssret;
+static std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>* s_susssret;
 
-std::unordered_set<std::string> Lard::ReferencedObjects( bool all )
+std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> Lard::ReferencedObjects( bool all )
 {
-    std::unordered_set<std::string> ret;
+    std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ret;
     s_susssret = &ret;
 
     auto cb = []( char* ptr ) {
-        s_susssret->emplace( ptr + 12, 40 );
+        s_susssret->emplace( Buffer::Store( ptr + 12, 40 ) );
     };
 
     rev_info* revs = NewRevInfo();
