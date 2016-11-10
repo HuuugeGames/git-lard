@@ -7,7 +7,12 @@
 class Buffer
 {
 public:
+    Buffer( const Buffer& ) = delete;
+    Buffer( Buffer&& ) = delete;
     ~Buffer();
+
+    Buffer& operator=( const Buffer& ) = delete;
+    Buffer& operator=( Buffer&& ) = delete;
 
     static const char* Store( const char* str );
     static const char* Store( const char* str, size_t len );
