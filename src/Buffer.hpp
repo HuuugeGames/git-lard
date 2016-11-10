@@ -1,6 +1,7 @@
 #ifndef __BUFFER_HPP__
 #define __BUFFER_HPP__
 
+#include <stdlib.h>
 #include <vector>
 
 class Buffer
@@ -12,6 +13,8 @@ public:
 
 private:
     Buffer();
+
+    void CheckSize( size_t size );
 
     std::vector<char*> m_buffers;
     char* m_current;

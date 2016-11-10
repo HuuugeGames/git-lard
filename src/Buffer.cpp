@@ -23,16 +23,21 @@ const char* Buffer::Store( const char* str )
 {
     static Buffer buf;
     const auto size = strlen( str ) + 1;
-    if( size > buf.m_left )
-    {
-        assert( size <= BufSize );
-        buf.m_current = new char[BufSize];
-        buf.m_left = BufSize;
-        buf.m_buffers.emplace_back( buf.m_current );
-    }
+    buf.CheckSize( size )
     memcpy( buf.m_current, str, size );
     const auto ret = buf.m_current;
     buf.m_current += size;
     buf.m_left -= size;
     return ret;
+}
+
+void Buffer::CheckSize( size_t size )
+{
+    if( size > m_left )
+    {
+        assert( size <= BufSize );
+        m_current = new char[BufSize];
+        m_left = BufSize;
+        m_buffers.emplace_back( m_current );
+    }
 }
