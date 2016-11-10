@@ -19,12 +19,30 @@ Buffer::~Buffer()
     }
 }
 
-const char* Buffer::Store( const char* str )
+Buffer& Buffer::GetInstance()
 {
     static Buffer buf;
+    return buf;
+}
+
+const char* Buffer::Store( const char* str )
+{
+    auto buf = GetInstance();
     const auto size = strlen( str ) + 1;
-    buf.CheckSize( size )
+    buf.CheckSize( size );
     memcpy( buf.m_current, str, size );
+    const auto ret = buf.m_current;
+    buf.m_current += size;
+    buf.m_left -= size;
+    return ret;
+}
+
+const char* Buffer::Store( const char* str, size_t size )
+{
+    auto buf = GetInstance();
+    buf.CheckSize( size+1 );
+    memcpy( buf.m_current, str, size );
+    buf.m_current[size++] = '\0';
     const auto ret = buf.m_current;
     buf.m_current += size;
     buf.m_left -= size;

@@ -10,9 +10,11 @@ public:
     ~Buffer();
 
     static const char* Store( const char* str );
+    static const char* Store( const char* str, size_t len );
 
 private:
     Buffer();
+    static Buffer& GetInstance();
 
     void CheckSize( size_t size );
 
