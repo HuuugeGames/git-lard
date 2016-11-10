@@ -1,5 +1,6 @@
 SRCPATH = ../src
 GITDIR = ../git
+XXHASHDIR = ../xxHash
 GITLIB = $(GITDIR)/libgit.a
 XDIFFLIB = $(GITDIR)/xdiff/lib.a
 
