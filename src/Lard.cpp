@@ -65,7 +65,34 @@ void Lard::Status( int argc, char** argv )
     const auto catalog = ListDirectory( m_objdir );
     DBGPRINT( "Fat objects: " << catalog.size() );
     bool all = checkarg( argc, argv, "--all" ) != -1;
-    auto referenced = ReferencedObjects( all );
+    const auto referenced = ReferencedObjects( all );
+
+    const auto garbage = RelativeComplement( catalog, referenced );
+    const auto orphans = RelativeComplement( referenced, catalog );
+
+    if( all )
+    {
+        for( auto& v : referenced )
+        {
+            printf( "%s\n", v );
+        }
+    }
+    if( !orphans.empty() )
+    {
+        printf( "Orphan objects:\n" );
+        for( auto& v : orphans )
+        {
+            printf( "    %s\n", v );
+        }
+    }
+    if( !garbage.empty() )
+    {
+        printf( "Garbage objects:\n" );
+        for( auto& v : garbage )
+        {
+            printf( "    %s\n", v );
+        }
+    }
 }
 
 void Lard::Setup()
