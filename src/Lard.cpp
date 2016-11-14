@@ -66,6 +66,7 @@ void Lard::Status( int argc, char** argv )
     DBGPRINT( "Fat objects: " << catalog.size() );
     bool all = checkarg( argc, argv, "--all" ) != -1;
     const auto referenced = ReferencedObjects( all );
+    DBGPRINT( "Referenced objects: " << referenced.size() );
 
     const auto garbage = RelativeComplement( catalog, referenced );
     const auto orphans = RelativeComplement( referenced, catalog );
