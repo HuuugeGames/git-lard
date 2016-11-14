@@ -51,7 +51,7 @@ static std::vector<const char*> RelativeComplement( const std::unordered_set<con
     std::vector<const char*> ret;
     for( auto& v : s1 )
     {
-        if( std::find( s2.begin(), s2.end(), v ) == s2.end() )
+        if( s2.find( v ) == s2.end() )
         {
             ret.emplace_back( v );
         }
