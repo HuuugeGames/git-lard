@@ -80,17 +80,20 @@ static void show_object( struct object* obj, const char* name, void* data )
 {
     if( obj->type == OBJ_BLOB )
     {
-        enum object_type type;
         unsigned long size;
-        void* ptr = read_sha1_file( obj->oid.hash, &type, &size );
+        struct object_info oi = { NULL };
+        oi.sizep = &size;
+        sha1_object_info_extended( obj->oid.hash, &oi, LOOKUP_REPLACE_OBJECT );
         if( size == GitFatMagic )
         {
+            enum object_type type;
+            void* ptr = read_sha1_file( obj->oid.hash, &type, &size );
             if( memcmp( ptr, "#$# git-fat ", 12 ) == 0 )
             {
                 ((void(*)(char*))data)( ptr );
             }
+            free( ptr );
         }
-        free( ptr );
     }
 }
 
