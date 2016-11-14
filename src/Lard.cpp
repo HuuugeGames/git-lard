@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 
 #include "Buffer.hpp"
 #include "Debug.hpp"
@@ -42,6 +44,19 @@ void Lard::Init()
         SetConfigKey( "filter.fat.clean", "git-fat filter-clean" );
         SetConfigKey( "filter.fat.smudge", "git-fat filter-smudge" );
     }
+}
+
+static std::vector<const char*> RelativeComplement( const std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>& s1, const std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>& s2 )
+{
+    std::vector<const char*> ret;
+    for( auto& v : s1 )
+    {
+        if( std::find( s2.begin(), s2.end(), v ) == s2.end() )
+        {
+            ret.emplace_back( v );
+        }
+    }
+    return ret;
 }
 
 void Lard::Status( int argc, char** argv )
