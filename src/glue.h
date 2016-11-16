@@ -20,6 +20,8 @@ void PrepareRevWalk( struct rev_info* revs );
 struct commit* GetRevision( struct rev_info* revs );
 void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) );
 
+const char* CalcSha1( const char* ptr, size_t size );
+
 #ifdef __cplusplus
 }
 #endif
