@@ -6,6 +6,7 @@
 
 #include "Buffer.hpp"
 #include "Debug.hpp"
+#include "FileMap.hpp"
 #include "Filesystem.hpp"
 #include "glue.h"
 #include "Lard.hpp"
@@ -109,6 +110,32 @@ void Lard::GC()
         sprintf( fn, "%s/%s", m_objdir.c_str(), v );
         printf( "%10d %s\n", GetFileSize( fn ), v );
         unlink( fn );
+    }
+}
+
+void Lard::Verify()
+{
+    std::vector<std::pair<const char*, const char*>> corrupted;
+    const auto catalog = ListDirectory( m_objdir );
+    for( auto& v : catalog )
+    {
+        char fn[1024];
+        sprintf( fn, "%s/%s", m_objdir.c_str(), v );
+        FileMap<char> f( fn );
+        auto sha1 = CalcSha1( f, f.DataSize() );
+        if( strncmp( v, sha1, 40 ) != 0 )
+        {
+            corrupted.emplace_back( v, Buffer::Store( sha1, 40 ) );
+        }
+    }
+    if( !corrupted.empty() )
+    {
+        printf( "Corrupted objects: %d\n", corrupted.size() );
+        for( auto& v : corrupted )
+        {
+            printf( "%s data hash is %s\n", v.first, v.second );
+        }
+        exit( 1 );
     }
 }
 

@@ -59,6 +59,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "verify" ) )
     {
+        lard.Verify();
     }
     else if( CSTR( "checkout" ) )
     {
