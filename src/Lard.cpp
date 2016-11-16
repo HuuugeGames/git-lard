@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
@@ -11,7 +9,6 @@
 #include "Filesystem.hpp"
 #include "glue.h"
 #include "Lard.hpp"
-#include "verify.h"
 
 static int checkarg( int argc, char** argv, const char* arg )
 {
@@ -110,9 +107,7 @@ void Lard::GC()
     {
         char fn[1024];
         sprintf( fn, "%s/%s", m_objdir.c_str(), v );
-        struct stat st;
-        verify( stat( fn, &st ) == 0 );
-        printf( "%10d %s\n", st.st_size, v );
+        printf( "%10d %s\n", GetFileSize( fn ), v );
         unlink( fn );
     }
 }
