@@ -7,7 +7,7 @@ XDIFFLIB = $(GITDIR)/xdiff/lib.a
 INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
 LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
-CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>'
+CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>' -I$(GITDIR)/compat/regex
 CXXFLAGS = $(CFLAGS) -std=c++14
 
 ifneq (,$(WINDIR))
@@ -31,10 +31,10 @@ $(TARGET): $(OBJS) $(GITLIB) $(XDIFFLIB)
 	$(CXX) $(OBJS) $(CXXFLAGS) $(LIBS) -o $(TARGET)
 
 $(GITLIB):
-	+make -C $(GITDIR) libgit.a CFLAGS="$(CFLAGS)"
+	+make -C $(GITDIR) libgit.a CFLAGS="$(OPTFLAGS)"
 
 $(XDIFFLIB):
-	+make -C $(GITDIR) xdiff/lib.a CFLAGS="$(CFLAGS)"
+	+make -C $(GITDIR) xdiff/lib.a CFLAGS="$(OPTFLAGS)"
 
 $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p $(@D)
