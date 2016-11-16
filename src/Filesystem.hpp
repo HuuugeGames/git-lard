@@ -7,6 +7,7 @@
 #include <unordered_set>
 
 #include "StringHelpers.hpp"
+#include "verify.h"
 
 bool CreateDirStruct( const std::string& path );
 std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ListDirectory( const std::string& path );
@@ -31,14 +32,14 @@ static inline bool Exists( const std::string& path )
 static inline bool IsFile( const std::string& path )
 {
     struct stat64 buf;
-    stat64( path.c_str(), &buf );
+    verify( stat64( path.c_str(), &buf ) == 0 );
     return S_ISREG( buf.st_mode );
 }
 
 static inline uint64_t GetFileSize( const char* path )
 {
     struct stat64 buf;
-    stat64( path, &buf );
+    verify( stat64( path, &buf ) == 0 );
     return buf.st_size;
 }
 
