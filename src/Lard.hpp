@@ -14,6 +14,7 @@ public:
 
     void Init();
     void Status( int argc, char** argv );
+    void GC();
 
 private:
     void Setup();

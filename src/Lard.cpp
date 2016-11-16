@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <vector>
 
 #include "Buffer.hpp"
@@ -8,6 +11,7 @@
 #include "Filesystem.hpp"
 #include "glue.h"
 #include "Lard.hpp"
+#include "verify.h"
 
 static int checkarg( int argc, char** argv, const char* arg )
 {
@@ -93,6 +97,23 @@ void Lard::Status( int argc, char** argv )
         {
             printf( "    %s\n", v );
         }
+    }
+}
+
+void Lard::GC()
+{
+    const auto catalog = ListDirectory( m_objdir );
+    const auto referenced = ReferencedObjects( false );
+    const auto garbage = RelativeComplement( catalog, referenced );
+    printf( "Unreferenced objects to remove: %d\n", garbage.size() );
+    for( auto& v : garbage )
+    {
+        char fn[1024];
+        sprintf( fn, "%s/%s", m_objdir.c_str(), v );
+        struct stat st;
+        verify( stat( fn, &st ) == 0 );
+        printf( "%10d %s\n", st.st_size, v );
+        unlink( fn );
     }
 }
 

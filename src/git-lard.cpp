@@ -55,6 +55,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "gc" ) )
     {
+        lard.GC();
     }
     else if( CSTR( "verify" ) )
     {
