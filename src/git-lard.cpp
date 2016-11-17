@@ -66,6 +66,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "find" ) )
     {
+        lard.Find( argc-2, argv+2 );
     }
     else if( CSTR( "index-filter" ) )
     {

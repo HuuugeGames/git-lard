@@ -76,7 +76,7 @@ struct commit* GetRevision( struct rev_info* revs )
 
 static void null_show_commit( struct commit* a, void* b ) {}
 
-static void show_object( struct object* obj, const char* name, void* data )
+static void show_fat_object( struct object* obj, const char* name, void* data )
 {
     if( obj->type == OBJ_BLOB )
     {
@@ -97,7 +97,26 @@ static void show_object( struct object* obj, const char* name, void* data )
     }
 }
 
-void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) )
+void GetFatObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) )
+{
+    revs->blob_objects = 1;
+    revs->tree_objects = 1;
+    traverse_commit_list( revs, null_show_commit, show_fat_object, cb );
+}
+
+static void show_object( struct object* obj, const char* name, void* data )
+{
+    if( obj->type == OBJ_BLOB )
+    {
+        unsigned long size;
+        struct object_info oi = { NULL };
+        oi.sizep = &size;
+        sha1_object_info_extended( obj->oid.hash, &oi, LOOKUP_REPLACE_OBJECT );
+        ((void(*)(char*,size_t))data)( sha1_to_hex( obj->oid.hash ), size );
+    }
+}
+
+void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) )
 {
     revs->blob_objects = 1;
     revs->tree_objects = 1;

@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <chrono>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <vector>
@@ -139,6 +141,14 @@ void Lard::Verify()
     }
 }
 
+void Lard::Find( int argc, char** argv )
+{
+    assert( argc > 0 );
+    const auto maxsize = atoi( argv[0] );
+    const auto blobsizes = GenLargeBlobs( maxsize );
+    const auto time0 = std::chrono::high_resolution_clock::now();
+}
+
 void Lard::Setup()
 {
     CreateDirStruct( m_objdir );
@@ -170,8 +180,44 @@ std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> La
         AddRevHead( revs );
     }
     PrepareRevWalk( revs );
+    GetFatObjectsFromRevs( revs, cb );
+    free( revs );
+
+    return ret;
+}
+
+static std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to>* s_sumglbret;
+static size_t s_glb_numblobs;
+static size_t s_glb_numlarge;
+static size_t s_glb_threshold;
+
+std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to> Lard::GenLargeBlobs( int threshold )
+{
+    std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to> ret;
+    s_sumglbret = &ret;
+    s_glb_numblobs = 0;
+    s_glb_numlarge = 1;     // ??? Shouldn't this be 0?
+    s_glb_threshold = threshold;
+
+    auto cb = []( char* ptr, size_t size ) {
+        s_glb_numblobs++;
+        if( size > s_glb_threshold )    // ??? This contradicts message below!
+        {
+            s_glb_numlarge++;
+            assert( s_sumglbret->find( ptr ) == s_sumglbret->end() );
+            s_sumglbret->emplace( Buffer::Store( ptr ), size );
+        }
+    };
+
+    const auto time0 = std::chrono::high_resolution_clock::now();
+    rev_info* revs = NewRevInfo();
+    AddRevAll( revs );
+    PrepareRevWalk( revs );
     GetObjectsFromRevs( revs, cb );
     free( revs );
+    const auto time1 = std::chrono::high_resolution_clock::now();
+
+    DBGPRINT( s_glb_numlarge << " of " << s_glb_numblobs << " blobs are >= " << threshold << " bytes [elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>( time1 - time0 ).count() << "ms]" );
 
     return ret;
 }

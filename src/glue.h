@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 struct rev_info;
 struct commit;
 
@@ -18,7 +20,8 @@ void AddRevHead( struct rev_info* revs );
 void AddRevAll( struct rev_info* revs );
 void PrepareRevWalk( struct rev_info* revs );
 struct commit* GetRevision( struct rev_info* revs );
-void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) );
+void GetFatObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) );
+void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 
 const char* CalcSha1( const char* ptr, size_t size );
 
