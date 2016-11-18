@@ -8,6 +8,9 @@
 
 #include "StringHelpers.hpp"
 
+using set_str = std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>;
+using map_strsize = std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to>;
+
 class Lard
 {
 public:
@@ -24,8 +27,8 @@ private:
     void Setup();
     bool IsInitDone();
 
-    std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ReferencedObjects( bool all );
-    std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to> GenLargeBlobs( int threshold );
+    set_str ReferencedObjects( bool all );
+    map_strsize GenLargeBlobs( int threshold );
 
     std::string m_gitdir;
     std::string m_objdir;

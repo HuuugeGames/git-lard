@@ -13,6 +13,9 @@
 #include "glue.h"
 #include "Lard.hpp"
 
+static set_str* s_susssret;
+static map_strsize* s_sumglbret;
+
 static int checkarg( int argc, char** argv, const char* arg )
 {
     for( int i=0; i<argc; i++ )
@@ -50,7 +53,7 @@ void Lard::Init()
     }
 }
 
-static std::vector<const char*> RelativeComplement( const std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>& s1, const std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>& s2 )
+static std::vector<const char*> RelativeComplement( const set_str& s1, const set_str& s2 )
 {
     std::vector<const char*> ret;
     for( auto& v : s1 )
@@ -147,6 +150,12 @@ void Lard::Find( int argc, char** argv )
     const auto maxsize = atoi( argv[0] );
     const auto blobsizes = GenLargeBlobs( maxsize );
     const auto time0 = std::chrono::high_resolution_clock::now();
+
+    rev_info* revs = NewRevInfo();
+    AddRevAll( revs );
+    PrepareRevWalk( revs );
+
+    free( revs );
 }
 
 void Lard::Setup()
@@ -159,11 +168,10 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
-static std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>* s_susssret;
 
-std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> Lard::ReferencedObjects( bool all )
+set_str Lard::ReferencedObjects( bool all )
 {
-    std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> ret;
+    set_str ret;
     s_susssret = &ret;
 
     auto cb = []( char* ptr ) {
@@ -186,14 +194,13 @@ std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> La
     return ret;
 }
 
-static std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to>* s_sumglbret;
 static size_t s_glb_numblobs;
 static size_t s_glb_numlarge;
 static size_t s_glb_threshold;
 
-std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to> Lard::GenLargeBlobs( int threshold )
+map_strsize Lard::GenLargeBlobs( int threshold )
 {
-    std::unordered_map<const char*, size_t, StringHelpers::hash, StringHelpers::equal_to> ret;
+    map_strsize ret;
     s_sumglbret = &ret;
     s_glb_numblobs = 0;
     s_glb_numlarge = 1;     // ??? Shouldn't this be 0?
