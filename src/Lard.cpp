@@ -13,8 +13,8 @@
 #include "glue.h"
 #include "Lard.hpp"
 
-static set_str* s_susssret;
-static map_strsize* s_sumglbret;
+static set_str* ptr_set_str;
+static map_strsize* ptr_map_strsize;
 
 static int checkarg( int argc, char** argv, const char* arg )
 {
@@ -172,10 +172,10 @@ bool Lard::IsInitDone()
 set_str Lard::ReferencedObjects( bool all )
 {
     set_str ret;
-    s_susssret = &ret;
+    ptr_set_str = &ret;
 
     auto cb = []( char* ptr ) {
-        s_susssret->emplace( Buffer::Store( ptr + 12, 40 ) );
+        ptr_set_str->emplace( Buffer::Store( ptr + 12, 40 ) );
     };
 
     rev_info* revs = NewRevInfo();
@@ -201,7 +201,7 @@ static size_t s_glb_threshold;
 map_strsize Lard::GenLargeBlobs( int threshold )
 {
     map_strsize ret;
-    s_sumglbret = &ret;
+    ptr_map_strsize = &ret;
     s_glb_numblobs = 0;
     s_glb_numlarge = 1;     // ??? Shouldn't this be 0?
     s_glb_threshold = threshold;
@@ -211,8 +211,8 @@ map_strsize Lard::GenLargeBlobs( int threshold )
         if( size > s_glb_threshold )    // ??? This contradicts message below!
         {
             s_glb_numlarge++;
-            assert( s_sumglbret->find( ptr ) == s_sumglbret->end() );
-            s_sumglbret->emplace( Buffer::Store( ptr ), size );
+            assert( ptr_map_strsize->find( ptr ) == ptr_map_strsize->end() );
+            ptr_map_strsize->emplace( Buffer::Store( ptr ), size );
         }
     };
 
