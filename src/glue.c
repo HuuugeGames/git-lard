@@ -15,10 +15,11 @@ enum { GitFatMagic = 74 };
 
 static char s_tmpbuf[4096];
 
-void SetupGitDirectory()
+const char* SetupGitDirectory()
 {
-    setup_git_directory();
+    const char* prefix = setup_git_directory();
     gitmodules_config();
+    return prefix;
 }
 
 const char* GetGitDir()

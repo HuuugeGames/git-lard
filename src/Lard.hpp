@@ -30,6 +30,7 @@ private:
     set_str ReferencedObjects( bool all );
     map_strsize GenLargeBlobs( int threshold );
 
+    std::string m_prefix;
     std::string m_gitdir;
     std::string m_objdir;
 };

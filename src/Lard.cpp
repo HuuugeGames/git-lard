@@ -26,11 +26,12 @@ static int checkarg( int argc, char** argv, const char* arg )
 }
 
 Lard::Lard()
+    : m_prefix( SetupGitDirectory() )
+    , m_gitdir( GetGitDir() )
+    , m_objdir( m_gitdir + "/fat/object" )
 {
-    SetupGitDirectory();
-    m_gitdir = GetGitDir();
+    DBGPRINT( "Prefix: " << m_prefix );
     DBGPRINT( "Git dir: " << m_gitdir );
-    m_objdir = m_gitdir + "/fat/objects";
     DBGPRINT( "Obj dir: " << m_objdir );
 }
 

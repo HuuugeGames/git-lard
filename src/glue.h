@@ -9,7 +9,7 @@ extern "C" {
 struct rev_info;
 struct commit;
 
-void SetupGitDirectory();
+const char* SetupGitDirectory();
 const char* GetGitDir();
 const char* GetGitWorkTree();
 int CheckIfConfigKeyExists( const char* key );
