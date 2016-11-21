@@ -141,13 +141,3 @@ void GetCommitList( struct rev_info* revs, void(*cb)( char* ) )
         ((void(*)(char*))cb)( sha1_to_hex( commit->object.oid.hash ) );
     }
 }
-
-const char* CalcSha1( const char* ptr, size_t size )
-{
-    git_SHA_CTX ctx;
-    unsigned char sha1[20];
-    git_SHA1_Init( &ctx );
-    git_SHA1_Update( &ctx, ptr, size );
-    git_SHA1_Final( sha1, &ctx );
-    return sha1_to_hex( sha1 );
-}

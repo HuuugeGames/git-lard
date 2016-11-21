@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <vector>
+#include <openssl/ssl.h>
 
 #include "Buffer.hpp"
 #include "Debug.hpp"
@@ -180,6 +181,18 @@ void Lard::Setup()
 bool Lard::IsInitDone()
 {
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
+}
+
+const char* Lard::CalcSha1( const char* ptr, size_t size )
+{
+    static char ret[41] = {};
+    unsigned char sha1[20];
+    SHA1( (const unsigned char*)ptr, size, sha1 );
+    for( int i=0; i<20; i++ )
+    {
+        sprintf( ret+i*2, "%02x", sha1[i] );
+    }
+    return ret;
 }
 
 set_str Lard::ReferencedObjects( bool all )

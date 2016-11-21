@@ -26,6 +26,7 @@ public:
 private:
     void Setup();
     bool IsInitDone();
+    const char* CalcSha1( const char* ptr, size_t size );
 
     set_str ReferencedObjects( bool all );
     map_strsize GenLargeBlobs( int threshold );

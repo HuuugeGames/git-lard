@@ -25,8 +25,6 @@ void GetFatObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) );
 void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 
-const char* CalcSha1( const char* ptr, size_t size );
-
 #ifdef __cplusplus
 }
 #endif
