@@ -189,7 +189,7 @@ set_str Lard::ReferencedObjects( bool all )
     }
     PrepareRevWalk( revs );
     GetFatObjectsFromRevs( revs, cb );
-    free( revs );
+    FreeRevs( revs );
 
     return ret;
 }
@@ -221,7 +221,7 @@ map_strsize Lard::GenLargeBlobs( int threshold )
     AddRevAll( revs );
     PrepareRevWalk( revs );
     GetObjectsFromRevs( revs, cb );
-    free( revs );
+    FreeRevs( revs );
     const auto time1 = std::chrono::high_resolution_clock::now();
 
     DBGPRINT( s_glb_numlarge << " of " << s_glb_numblobs << " blobs are >= " << threshold << " bytes [elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>( time1 - time0 ).count() << "ms]" );

@@ -69,6 +69,12 @@ void PrepareRevWalk( struct rev_info* revs )
     verify( prepare_revision_walk( revs ) == 0 );
 }
 
+void FreeRevs( struct rev_info* revs )
+{
+    free( revs );
+    reset_revision_walk();
+}
+
 struct commit* GetRevision( struct rev_info* revs )
 {
     return get_revision( revs );
