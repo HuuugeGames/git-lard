@@ -30,7 +30,7 @@ Lard::Lard()
     auto prefix = SetupGitDirectory();
     if( prefix ) m_prefix = prefix;
     m_gitdir = GetGitDir();
-    m_objdir = m_gitdir + "/fat/object";
+    m_objdir = m_gitdir + "/fat/objects";
 
     DBGPRINT( "Prefix: " << m_prefix );
     DBGPRINT( "Git dir: " << m_gitdir );
