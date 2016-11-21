@@ -81,6 +81,7 @@ struct commit* GetRevision( struct rev_info* revs )
 }
 
 static void null_show_commit( struct commit* a, void* b ) {}
+static void null_show_object( struct object* a, const char* b, void* c ) {}
 
 static void show_fat_object( struct object* obj, const char* name, void* data )
 {
@@ -127,6 +128,15 @@ void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) )
     revs->blob_objects = 1;
     revs->tree_objects = 1;
     traverse_commit_list( revs, null_show_commit, show_object, cb );
+}
+
+void GetCommitList( struct rev_info* revs, void(*cb)( char* ) )
+{
+    struct commit* commit;
+    while( ( commit = get_revision( revs ) ) != NULL )
+    {
+        ((void(*)(char*))cb)( sha1_to_hex( commit->object.oid.hash ) );
+    }
 }
 
 const char* CalcSha1( const char* ptr, size_t size )

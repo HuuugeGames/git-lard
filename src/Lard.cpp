@@ -144,6 +144,8 @@ void Lard::Verify()
     }
 }
 
+static std::vector<const char*>* ptr_vec_str;
+
 void Lard::Find( int argc, char** argv )
 {
     assert( argc > 0 );
@@ -151,11 +153,20 @@ void Lard::Find( int argc, char** argv )
     const auto blobsizes = GenLargeBlobs( maxsize );
     const auto time0 = std::chrono::high_resolution_clock::now();
 
+    std::vector<const char*> revlist;
+    ptr_vec_str = &revlist;
+
+    auto cb = []( char* ptr ) {
+        ptr_vec_str->emplace_back( Buffer::Store( ptr ) );
+    };
+
     rev_info* revs = NewRevInfo();
     AddRevAll( revs );
     PrepareRevWalk( revs );
+    GetCommitList( revs, cb );
+    FreeRevs( revs );
 
-    free( revs );
+    DBGPRINT( "Rev walk found " << revlist.size() << " commits" );
 }
 
 void Lard::Setup()
