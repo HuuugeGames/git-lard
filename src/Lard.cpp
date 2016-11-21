@@ -179,7 +179,6 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
-
 set_str Lard::ReferencedObjects( bool all )
 {
     set_str ret;
