@@ -6,6 +6,7 @@
 #include "git/git-compat-util.h"
 #include "git/revision.h"
 #include "git/list-objects.h"
+#include "git/submodule.h"
 
 #include "glue.h"
 #include "verify.h"
@@ -17,6 +18,7 @@ static char s_tmpbuf[4096];
 void SetupGitDirectory()
 {
     setup_git_directory();
+    gitmodules_config();
 }
 
 const char* GetGitDir()
