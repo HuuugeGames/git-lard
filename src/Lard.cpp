@@ -195,11 +195,16 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
-const char* Lard::CalcSha1( const char* ptr, size_t size )
+const char* Lard::CalcSha1( const char* ptr, size_t size ) const
 {
-    static char ret[41] = {};
     unsigned char sha1[20];
     SHA1( (const unsigned char*)ptr, size, sha1 );
+    return Sha1ToHex( sha1 );
+}
+
+const char* Lard::Sha1ToHex( const unsigned char sha1[20] ) const
+{
+    static char ret[41] = {};
     for( int i=0; i<20; i++ )
     {
         sprintf( ret+i*2, "%02x", sha1[i] );
