@@ -29,6 +29,8 @@ private:
     void Setup();
     bool IsInitDone();
 
+    void FilterClean( FILE* in, FILE* out );
+
     const char* CalcSha1( const char* ptr, size_t size ) const;
     const char* Sha1ToHex( const unsigned char sha1[20] ) const;
 

@@ -175,12 +175,40 @@ void Lard::Find( int argc, char** argv )
     printf( "TODO\n" );
 }
 
+// file content -> fat-sha-magic
 void Lard::Clean()
 {
     Setup();
-
+    FilterClean( stdin, stdout );
 }
 
+void Lard::FilterClean( FILE* in, FILE* out )
+{
+    size_t size = 0;
+
+    SHA_CTX ctx;
+    SHA1_Init( &ctx );
+
+    enum { ChunkSize = 4096 };
+    char buf[ChunkSize];
+    size_t len;
+    do
+    {
+        len = fread( buf, 1, ChunkSize, in );
+        size += len;
+        SHA1_Update( &ctx, buf, len );
+    }
+    while( len == ChunkSize );
+
+    unsigned char sha1[20];
+    SHA1_Final( sha1, &ctx );
+
+    const char* hex = Sha1ToHex( sha1 );
+    const char* encoded = Encode( hex, size );
+    fprintf( out, "%s", encoded );
+}
+
+// fat-sha-magic -> file content
 void Lard::Smudge()
 {
 }
