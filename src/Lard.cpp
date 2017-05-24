@@ -212,6 +212,13 @@ const char* Lard::Sha1ToHex( const unsigned char sha1[20] ) const
     return ret;
 }
 
+const char* Lard::Encode( const char* sha1, size_t size ) const
+{
+    static char ret[75];
+    sprintf( ret, "#$# git-fat %s %20d\n", sha1, size );
+    return ret;
+}
+
 set_str Lard::ReferencedObjects( bool all )
 {
     set_str ret;
