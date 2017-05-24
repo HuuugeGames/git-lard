@@ -186,19 +186,30 @@ void Lard::FilterClean( FILE* in, FILE* out )
 {
     size_t size = 0;
 
+    enum { ChunkSize = 4096 };
+    char buf[ChunkSize];
+    size_t len = fread( buf, 1, ChunkSize, in );
+    if( len == GitFatMagic )
+    {
+        const char* sha1;
+        if( Decode( buf, sha1, size ) )
+        {
+            fwrite( buf, 1, GitFatMagic, out );
+            return;
+        }
+    }
+
     SHA_CTX ctx;
     SHA1_Init( &ctx );
 
-    enum { ChunkSize = 4096 };
-    char buf[ChunkSize];
-    size_t len;
-    do
+    size += len;
+    SHA1_Update( &ctx, buf, len );
+    while( len == ChunkSize )
     {
         len = fread( buf, 1, ChunkSize, in );
         size += len;
         SHA1_Update( &ctx, buf, len );
     }
-    while( len == ChunkSize );
 
     unsigned char sha1[20];
     SHA1_Final( sha1, &ctx );
