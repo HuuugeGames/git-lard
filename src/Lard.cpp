@@ -240,6 +240,33 @@ const char* Lard::Sha1ToHex( const unsigned char sha1[20] ) const
     return ret;
 }
 
+bool Lard::Decode( const char* data, const char*& sha1, size_t& size, bool errOnFail )
+{
+    enum { MagicLen = 12 };
+    static const char magic[MagicLen+1] = "#$# git-fat ";
+    static char retbuf[41] = {};
+
+    if( memcmp( data, magic, MagicLen ) == 0 )
+    {
+        memcpy( retbuf, data + MagicLen, 40 );
+        sha1 = retbuf;
+        size = atoi( data + MagicLen + 41 );
+        DBGPRINT( "Decoded git-fat string: hash " << sha1 << ", size: " << size );
+        return true;
+    }
+    else if( errOnFail )
+    {
+        char buf[128];
+        sprintf( buf, "Could not decode %.*s", GitFatMagic, data );
+        DBGPRINT( buf );
+        exit( 1 );
+    }
+    else
+    {
+        return false;
+    }
+}
+
 const char* Lard::Encode( const char* sha1, size_t size ) const
 {
     static char ret[GitFatMagic+1];

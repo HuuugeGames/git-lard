@@ -34,6 +34,7 @@ private:
     const char* CalcSha1( const char* ptr, size_t size ) const;
     const char* Sha1ToHex( const unsigned char sha1[20] ) const;
 
+    bool Decode( const char* data, const char*& sha1, size_t& size, bool errOnFail = false );
     const char* Encode( const char* sha1, size_t size ) const;
 
     set_str ReferencedObjects( bool all );
