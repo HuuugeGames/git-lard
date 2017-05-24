@@ -205,7 +205,7 @@ void Lard::FilterClean( FILE* in, FILE* out )
 
     const char* hex = Sha1ToHex( sha1 );
     const char* encoded = Encode( hex, size );
-    fprintf( out, "%s", encoded );
+    fwrite( encoded, 1, GitFatMagic, out );
 }
 
 // fat-sha-magic -> file content
