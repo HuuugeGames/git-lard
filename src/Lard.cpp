@@ -171,6 +171,18 @@ void Lard::Find( int argc, char** argv )
     FreeRevs( revs );
 
     DBGPRINT( "Rev walk found " << revlist.size() << " commits" );
+
+    printf( "TODO\n" );
+}
+
+void Lard::Clean()
+{
+    Setup();
+
+}
+
+void Lard::Smudge()
+{
 }
 
 void Lard::Setup()

@@ -35,9 +35,11 @@ int main( int argc, char** argv )
 #define CSTR(x) strcmp( argv[1], x ) == 0
     if( CSTR( "filter-clean" ) )
     {
+        lard.Clean();
     }
     else if( CSTR( "filter-smudge" ) )
     {
+        lard.Smudge();
     }
     else if( CSTR( "init" ) )
     {

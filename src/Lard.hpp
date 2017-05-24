@@ -22,6 +22,8 @@ public:
     void GC();
     void Verify();
     void Find( int argc, char** argv );
+    void Clean();
+    void Smudge();
 
 private:
     void Setup();
