@@ -11,8 +11,6 @@
 #include "glue.h"
 #include "verify.h"
 
-enum { GitFatMagic = 74 };
-
 static char s_tmpbuf[4096];
 
 const char* SetupGitDirectory()

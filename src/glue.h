@@ -6,6 +6,8 @@ extern "C" {
 
 #include <stdint.h>
 
+enum { GitFatMagic = 74 };
+
 struct rev_info;
 struct commit;
 

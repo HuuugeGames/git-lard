@@ -242,7 +242,7 @@ const char* Lard::Sha1ToHex( const unsigned char sha1[20] ) const
 
 const char* Lard::Encode( const char* sha1, size_t size ) const
 {
-    static char ret[75];
+    static char ret[GitFatMagic+1];
     sprintf( ret, "#$# git-fat %s %20d\n", sha1, size );
     return ret;
 }
