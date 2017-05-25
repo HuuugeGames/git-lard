@@ -187,7 +187,7 @@ void Lard::FilterClean( FILE* in, FILE* out )
     size_t size = 0;
 
     enum { ChunkSize = 4 * 1024 * 1024 };
-    char buf[ChunkSize];
+    char* buf = new char[ChunkSize];
     size_t len = fread( buf, 1, ChunkSize, in );
     if( len == GitFatMagic )
     {
@@ -195,20 +195,26 @@ void Lard::FilterClean( FILE* in, FILE* out )
         if( Decode( buf, sha1, size ) )
         {
             fwrite( buf, 1, GitFatMagic, out );
+            delete[] buf;
             return;
         }
     }
+
+    std::vector<char*> payload;
 
     SHA_CTX ctx;
     SHA1_Init( &ctx );
 
     size += len;
     SHA1_Update( &ctx, buf, len );
+    payload.emplace_back( buf );
     while( len == ChunkSize )
     {
+        buf = new char[ChunkSize];
         len = fread( buf, 1, ChunkSize, in );
         size += len;
         SHA1_Update( &ctx, buf, len );
+        payload.emplace_back( buf );
     }
 
     unsigned char sha1[20];
@@ -217,6 +223,28 @@ void Lard::FilterClean( FILE* in, FILE* out )
     const char* hex = Sha1ToHex( sha1 );
     const char* encoded = Encode( hex, size );
     fwrite( encoded, 1, GitFatMagic, out );
+
+    char path[PATH_MAX];
+    sprintf( path, "%s/%s", m_objdir.c_str(), hex );
+    if( !Exists( path ) )
+    {
+        DBGPRINT( "Caching file to " << path );
+        FILE* cache = fopen( path, "wb" );
+        assert( cache );
+        for( auto& ptr : payload )
+        {
+            auto s = std::min<size_t>( size, ChunkSize );
+            fwrite( ptr, 1, s, cache );
+            size -= s;
+        }
+        fclose( cache );
+        assert( size == 0 );
+    }
+
+    for( auto& ptr : payload )
+    {
+        delete[] ptr;
+    }
 }
 
 // fat-sha-magic -> file content
