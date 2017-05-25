@@ -247,6 +247,59 @@ void Lard::FilterClean( FILE* in, FILE* out )
 // fat-sha-magic -> file content
 void Lard::Smudge()
 {
+    enum { ChunkSize = 64 * 1024 };
+
+    Setup();
+    char fathdr[GitFatMagic];
+    auto len = fread( fathdr, 1, GitFatMagic, stdin );
+
+    const char* sha1;
+    size_t size;
+    if( len == GitFatMagic && Decode( fathdr, sha1, size ) )
+    {
+        auto fn = GetObjectFn( sha1 );
+        FILE* f = fopen( fn, "rb" );
+        if( f )
+        {
+            char buf[ChunkSize];
+            size_t read_size = 0;
+            do
+            {
+                len = fread( buf, 1, ChunkSize, f );
+                fwrite( buf, 1, len, stdout );
+                read_size += len;
+            }
+            while( len == ChunkSize );
+
+            fclose( f );
+
+            if( size == read_size )
+            {
+                DBGPRINT( "git-lard filter-smudge: restoring from " << fn );
+            }
+            else
+            {
+                DBGPRINT( "git-lard filter-smudge: invalid size of " << fn << " (expected " << size << ", got " << read_size <<")" );
+            }
+        }
+        else
+        {
+            DBGPRINT( "git-lard filter-smudge: fat object missing " << fn );
+        }
+    }
+    else
+    {
+        fwrite( fathdr, 1, len, stdout );
+        char buf[ChunkSize];
+        do
+        {
+            len = fread( buf, 1, ChunkSize, stdin );
+            fwrite( buf, 1, len, stdout );
+        }
+        while( len == ChunkSize );
+
+        DBGPRINT( "git-lard filter-smudge: not a managed file" );
+    }
 }
 
 void Lard::Setup()
