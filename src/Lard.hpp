@@ -36,6 +36,7 @@ private:
 
     bool Decode( const char* data, const char*& sha1, size_t& size, bool errOnFail = false );
     const char* Encode( const char* sha1, size_t size ) const;
+    const char* GetObjectFn( const char* sha1 ) const;
 
     set_str ReferencedObjects( bool all );
     map_strsize GenLargeBlobs( int threshold );

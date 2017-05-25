@@ -115,8 +115,7 @@ void Lard::GC()
     printf( "Unreferenced objects to remove: %d\n", garbage.size() );
     for( auto& v : garbage )
     {
-        char fn[1024];
-        sprintf( fn, "%s/%s", m_objdir.c_str(), v );
+        auto fn = GetObjectFn( v );
         printf( "%10d %s\n", GetFileSize( fn ), v );
         unlink( fn );
     }
@@ -128,8 +127,7 @@ void Lard::Verify()
     const auto catalog = ListDirectory( m_objdir );
     for( auto& v : catalog )
     {
-        char fn[1024];
-        sprintf( fn, "%s/%s", m_objdir.c_str(), v );
+        auto fn = GetObjectFn( v );
         FileMap<char> f( fn );
         auto sha1 = CalcSha1( f, f.DataSize() );
         if( strncmp( v, sha1, 40 ) != 0 )
@@ -224,8 +222,7 @@ void Lard::FilterClean( FILE* in, FILE* out )
     const char* encoded = Encode( hex, size );
     fwrite( encoded, 1, GitFatMagic, out );
 
-    char path[PATH_MAX];
-    sprintf( path, "%s/%s", m_objdir.c_str(), hex );
+    auto path = GetObjectFn( hex );
     if( !Exists( path ) )
     {
         DBGPRINT( "Caching file to " << path );
@@ -311,6 +308,13 @@ const char* Lard::Encode( const char* sha1, size_t size ) const
     static char ret[GitFatMagic+1];
     sprintf( ret, "#$# git-fat %s %20d\n", sha1, size );
     return ret;
+}
+
+const char* Lard::GetObjectFn( const char* sha1 ) const
+{
+    static char fn[1024];
+    sprintf( fn, "%s/%s", m_objdir.c_str(), sha1 );
+    return fn;
 }
 
 set_str Lard::ReferencedObjects( bool all )
