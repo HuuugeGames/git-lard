@@ -186,7 +186,7 @@ void Lard::FilterClean( FILE* in, FILE* out )
 {
     size_t size = 0;
 
-    enum { ChunkSize = 4096 };
+    enum { ChunkSize = 4 * 1024 * 1024 };
     char buf[ChunkSize];
     size_t len = fread( buf, 1, ChunkSize, in );
     if( len == GitFatMagic )
