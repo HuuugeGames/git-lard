@@ -28,6 +28,7 @@ public:
 private:
     void Setup();
     bool IsInitDone();
+    void AssertInitDone();
 
     void FilterClean( FILE* in, FILE* out );
 

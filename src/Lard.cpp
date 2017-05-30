@@ -310,6 +310,15 @@ bool Lard::IsInitDone()
     return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
 }
 
+void Lard::AssertInitDone()
+{
+    if( !IsInitDone() )
+    {
+        fprintf( stderr, "fatal: git-lard is not yet configured in this repository.\nRun \"git lard init\" to configure.\n" );
+        exit( 1 );
+    }
+}
+
 const char* Lard::CalcSha1( const char* ptr, size_t size ) const
 {
     unsigned char sha1[20];
