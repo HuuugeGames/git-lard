@@ -65,6 +65,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "checkout" ) )
     {
+        lard.Checkout();
     }
     else if( CSTR( "find" ) )
     {

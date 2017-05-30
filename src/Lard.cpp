@@ -300,6 +300,16 @@ void Lard::Smudge()
     }
 }
 
+void Lard::Checkout()
+{
+    Checkout( true );
+}
+
+void Lard::Checkout( bool showOrphans )
+{
+
+}
+
 void Lard::Setup()
 {
     CreateDirStruct( m_objdir );

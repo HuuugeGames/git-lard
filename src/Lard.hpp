@@ -24,6 +24,7 @@ public:
     void Find( int argc, char** argv );
     void Clean();
     void Smudge();
+    void Checkout();
 
 private:
     void Setup();
@@ -31,6 +32,7 @@ private:
     void AssertInitDone();
 
     void FilterClean( FILE* in, FILE* out );
+    void Checkout( bool showOrphans );
 
     const char* CalcSha1( const char* ptr, size_t size ) const;
     const char* Sha1ToHex( const unsigned char sha1[20] ) const;
