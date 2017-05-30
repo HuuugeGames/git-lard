@@ -250,18 +250,17 @@ void Lard::Smudge()
     enum { ChunkSize = 64 * 1024 };
 
     Setup();
-    char fathdr[GitFatMagic];
-    auto len = fread( fathdr, 1, GitFatMagic, stdin );
+    char buf[ChunkSize];
+    auto len = fread( buf, 1, ChunkSize, stdin );
 
     const char* sha1;
     size_t size;
-    if( len == GitFatMagic && Decode( fathdr, sha1, size ) )
+    if( len == GitFatMagic && Decode( buf, sha1, size ) )
     {
         auto fn = GetObjectFn( sha1 );
         FILE* f = fopen( fn, "rb" );
         if( f )
         {
-            char buf[ChunkSize];
             size_t read_size = 0;
             do
             {
@@ -289,8 +288,7 @@ void Lard::Smudge()
     }
     else
     {
-        fwrite( fathdr, 1, len, stdout );
-        char buf[ChunkSize];
+        fwrite( buf, 1, len, stdout );
         do
         {
             len = fread( buf, 1, ChunkSize, stdin );
