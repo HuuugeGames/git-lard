@@ -198,7 +198,7 @@ void Lard::FilterClean( FILE* in, FILE* out )
         }
     }
 
-    std::vector<char*> payload;
+    std::vector<const char*> payload;
 
     SHA_CTX ctx;
     SHA1_Init( &ctx );
