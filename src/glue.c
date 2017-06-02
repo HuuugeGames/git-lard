@@ -149,3 +149,39 @@ void GetCommitList( struct rev_info* revs, void(*cb)( char* ) )
         ((void(*)(char*))cb)( sha1_to_hex( commit->object.oid.hash ) );
     }
 }
+
+int ReadCache()
+{
+    return read_cache();
+}
+
+void ListFiles()
+{
+    const char* super_prefix = get_super_prefix();
+
+    for( int i=0; i<active_nr; i++ )
+    {
+        const struct cache_entry* ce = active_cache[i];
+        if( ce->ce_flags & CE_UPDATE ) continue;
+        char buf[1024];
+        char* ptr = buf;
+        if( super_prefix )
+        {
+            size_t len = strlen( super_prefix );
+            memcpy( ptr, super_prefix, len );
+            ptr += len;
+        }
+
+        size_t len = strlen( ce->name );
+        memcpy( ptr, ce->name, len );
+        ptr += len;
+
+        *ptr = '\0';
+
+        static char* ps_matched;
+        if( match_pathspec( &pathspec, buf, ptr-buf, 0, ps_matched, S_ISDIR( ce->ce_mode ) || S_ISGITLINK( ce->ce_mode ) ) )
+        {
+            printf( "%s\n", buf + prefixlen );
+        }
+    }
+}
