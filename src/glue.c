@@ -3,7 +3,9 @@
 #include <string.h>
 
 #include "git/cache.h"
+#include "git/dir.h"
 #include "git/git-compat-util.h"
+#include "git/pathspec.h"
 #include "git/revision.h"
 #include "git/list-objects.h"
 #include "git/submodule.h"
@@ -12,10 +14,13 @@
 #include "verify.h"
 
 static char s_tmpbuf[4096];
+static struct pathspec pathspec;
+static int prefixlen;
 
 const char* SetupGitDirectory()
 {
     const char* prefix = setup_git_directory();
+    prefixlen = prefix ? strlen( prefix ) : 0;
     gitmodules_config();
     return prefix;
 }
@@ -34,6 +39,11 @@ const char* GetGitDir()
 const char* GetGitWorkTree()
 {
     return get_git_work_tree();
+}
+
+void ParsePathspec( const char* prefix )
+{
+    parse_pathspec( &pathspec, 0, PATHSPEC_PREFER_CWD | PATHSPEC_STRIP_SUBMODULE_SLASH_CHEAP, prefix, NULL );
 }
 
 int CheckIfConfigKeyExists( const char* key )

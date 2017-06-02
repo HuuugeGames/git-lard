@@ -14,6 +14,8 @@ struct commit;
 const char* SetupGitDirectory();
 const char* GetGitDir();
 const char* GetGitWorkTree();
+void ParsePathspec( const char* prefix );
+
 int CheckIfConfigKeyExists( const char* key );
 void SetConfigKey( const char* key, const char* val );
 
