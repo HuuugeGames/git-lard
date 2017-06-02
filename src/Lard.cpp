@@ -307,7 +307,14 @@ void Lard::Checkout()
 
 void Lard::Checkout( bool showOrphans )
 {
-
+    AssertInitDone();
+    ParsePathspec( m_prefix.c_str() );
+    if( ReadCache() < 0 )
+    {
+        fprintf( stderr, "index file corrupt\n" );
+        exit( 1 );
+    }
+    ListFiles();
 }
 
 void Lard::Setup()
