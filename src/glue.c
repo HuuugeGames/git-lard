@@ -181,7 +181,7 @@ void ListFiles( void(*cb)( const char* ) )
         static char* ps_matched;
         if( match_pathspec( &pathspec, buf, ptr-buf, 0, ps_matched, S_ISDIR( ce->ce_mode ) || S_ISGITLINK( ce->ce_mode ) ) )
         {
-            printf( "%s\n", buf + prefixlen );
+            cb( buf );
         }
     }
 }
