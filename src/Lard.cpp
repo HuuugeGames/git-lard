@@ -380,7 +380,7 @@ bool Lard::Decode( const char* data, const char*& sha1, size_t& size, bool errOn
     }
 }
 
-const char* Lard::Encode( const char* sha1, size_t size ) const
+const char* Lard::Encode( const char* sha1, size_t size )
 {
     static char ret[GitFatMagic+1];
     sprintf( ret, "#$# git-fat %s %20d\n", sha1, size );
