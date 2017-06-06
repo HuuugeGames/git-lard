@@ -30,7 +30,7 @@ void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 
 int ReadCache();
-void ListFiles( void(*cb)( const char* ) );
+void ListFiles( void(*cb)( const char*, const char* ) );
 
 #ifdef __cplusplus
 }

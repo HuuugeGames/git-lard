@@ -317,7 +317,7 @@ void Lard::Checkout( bool showOrphans )
         exit( 1 );
     }
 
-    auto cb = []( const char* fn ) {
+    auto cb = []( const char* fn, const char* localFn ) {
         struct stat sb;
         if( stat( fn, &sb ) != 0 ) return;
         if( sb.st_size != GitFatMagic ) return;

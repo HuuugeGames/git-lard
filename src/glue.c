@@ -155,7 +155,7 @@ int ReadCache()
     return read_cache();
 }
 
-void ListFiles( void(*cb)( const char* ) )
+void ListFiles( void(*cb)( const char*, const char* ) )
 {
     const char* super_prefix = get_super_prefix();
 
@@ -181,7 +181,7 @@ void ListFiles( void(*cb)( const char* ) )
         static char* ps_matched;
         if( match_pathspec( &pathspec, buf, ptr-buf, 0, ps_matched, S_ISDIR( ce->ce_mode ) || S_ISGITLINK( ce->ce_mode ) ) )
         {
-            cb( buf );
+            cb( buf, buf + prefixlen );
         }
     }
 }
