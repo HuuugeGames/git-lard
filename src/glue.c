@@ -155,7 +155,7 @@ int ReadCache()
     return read_cache();
 }
 
-void ListFiles()
+void ListFiles( void(*cb)( const char* ) )
 {
     const char* super_prefix = get_super_prefix();
 

@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <vector>
 #include <openssl/ssl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "Buffer.hpp"
 #include "Debug.hpp"
@@ -314,7 +316,21 @@ void Lard::Checkout( bool showOrphans )
         fprintf( stderr, "index file corrupt\n" );
         exit( 1 );
     }
-    ListFiles();
+
+    auto cb = []( const char* fn ) {
+        struct stat sb;
+        if( stat( fn, &sb ) != 0 ) return;
+        if( sb.st_size != GitFatMagic ) return;
+        char buf[GitFatMagic];
+        FILE* f = fopen( fn, "rb" );
+        verify( fread( buf, 1, GitFatMagic, f ) == GitFatMagic );
+        fclose( f );
+        size_t size;
+        const char* sha1;
+        if( !Decode( buf, sha1, size ) ) return;
+    };
+
+    ListFiles( cb );
 }
 
 void Lard::Setup()
