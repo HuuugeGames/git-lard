@@ -309,6 +309,12 @@ void Lard::Checkout()
 
 void Lard::Checkout( bool showOrphans )
 {
+    static char objbuf[1024];
+    memcpy( objbuf, m_objdir.c_str(), m_objdir.size() );
+    static char* objbufptr = objbuf + m_objdir.size();
+    *objbufptr++ = '/';
+    objbufptr[40] = '\0';
+
     AssertInitDone();
     ParsePathspec( m_prefix.c_str() );
     if( ReadCache() < 0 )
@@ -328,6 +334,8 @@ void Lard::Checkout( bool showOrphans )
         size_t size;
         const char* sha1;
         if( !Decode( buf, sha1, size ) ) return;
+
+        memcpy( objbufptr, sha1, 40 );
     };
 
     ListFiles( cb );
