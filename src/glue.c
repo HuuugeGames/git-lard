@@ -212,3 +212,16 @@ void ListFiles( void(*cb)( const char*, const char* ) )
         }
     }
 }
+
+const char* GetSha1( const char* name )
+{
+    unsigned char sha1[20];
+    if( !get_sha1( name, sha1 ) )
+    {
+        return sha1_to_hex( sha1 );
+    }
+    else
+    {
+        return NULL;
+    }
+}

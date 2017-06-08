@@ -39,6 +39,8 @@ void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 int ReadCache();
 void ListFiles( void(*cb)( const char*, const char* ) );
 
+const char* GetSha1( const char* name );
+
 #ifdef __cplusplus
 }
 #endif
