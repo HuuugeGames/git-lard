@@ -25,6 +25,7 @@ public:
     void Clean();
     void Smudge();
     void Checkout();
+    void Pull( int argc, char** argv );
 
 private:
     void Setup();

@@ -370,6 +370,45 @@ void Lard::Checkout( bool showOrphans )
     ListFiles( cb );
 }
 
+void Lard::Pull( int argc, char** argv )
+{
+    Setup();
+
+    bool all = false;
+    const char* rev = nullptr;
+
+    int n;
+    for( int n=0; n<argc; n++ )
+    {
+        if( *argv[n] == '-' )
+        {
+            if( strcmp( argv[n]+1, "-" ) == 0 )
+            {
+                n++;
+                break;
+            }
+            if( strcmp( argv[n]+1, "-all" ) == 0 )
+            {
+                all = true;
+            }
+        }
+        else
+        {
+            auto _rev = GetSha1( argv[n] );
+            if( _rev ) rev = _rev;
+        }
+    }
+
+    DBGPRINT( "Rev: " << ( rev ? rev : "(none)" ) << ", all: " << all );
+
+    const char* cmd = GetRsyncCommand( false );
+    DBGPRINT( "Executing: " << cmd );
+
+    // fork
+
+    Checkout();
+}
+
 void Lard::Setup()
 {
     CreateDirStruct( m_objdir );
