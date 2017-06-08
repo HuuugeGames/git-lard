@@ -10,6 +10,7 @@ enum { GitFatMagic = 74 };
 
 struct rev_info;
 struct commit;
+struct config_set;
 
 const char* SetupGitDirectory();
 const char* GetGitDir();
@@ -18,6 +19,12 @@ void ParsePathspec( const char* prefix );
 
 int CheckIfConfigKeyExists( const char* key );
 void SetConfigKey( const char* key, const char* val );
+int GetConfigKey( const char* key, const char** val );
+int GetConfigSetKey( const char* key, const char** val, struct config_set* cs );
+
+struct config_set* NewConfigSet();
+void ConfigSetAddFile( struct config_set* cs, const char* file );
+void FreeConfigSet( struct config_set* cs );
 
 struct rev_info* NewRevInfo();
 void AddRevHead( struct rev_info* revs );

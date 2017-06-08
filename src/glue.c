@@ -57,6 +57,33 @@ void SetConfigKey( const char* key, const char* val )
     git_config_set( key, val );
 }
 
+int GetConfigKey( const char* key, const char** val )
+{
+    return !git_config_get_value( key, val );
+}
+
+int GetConfigSetKey( const char* key, const char** val, struct config_set* cs )
+{
+    return !git_configset_get_value( cs, key, val );
+}
+
+struct config_set* NewConfigSet()
+{
+    struct config_set* cs = (struct config_set*)malloc( sizeof( struct config_set ) );
+    git_configset_init( cs );
+    return cs;
+}
+
+void ConfigSetAddFile( struct config_set* cs, const char* file )
+{
+    git_configset_add_file( cs, file );
+}
+
+void FreeConfigSet( struct config_set* cs )
+{
+    git_configset_clear( cs );
+}
+
 struct rev_info* NewRevInfo()
 {
     struct rev_info* revs = (struct rev_info*)malloc( sizeof( struct rev_info ) );
