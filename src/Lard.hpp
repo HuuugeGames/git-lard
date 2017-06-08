@@ -41,6 +41,8 @@ private:
     static const char* Encode( const char* sha1, size_t size );
     const char* GetObjectFn( const char* sha1 ) const;
 
+    const char* GetRsyncCommand( bool push ) const;
+
     set_str ReferencedObjects( bool all );
     map_strsize GenLargeBlobs( int threshold );
 

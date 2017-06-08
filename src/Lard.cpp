@@ -447,6 +447,88 @@ const char* Lard::GetObjectFn( const char* sha1 ) const
     return fn;
 }
 
+const char* Lard::GetRsyncCommand( bool push ) const
+{
+    static char cmd[2048] = "rsync --progress --ignore-existing --from0 --files-from=-";
+    static const auto initLen = strlen( cmd );
+    char* ptr = cmd + initLen;
+
+    std::string cfgPath = std::string( GetGitWorkTree() ) + "/.gitfat";
+
+    const char *remote, *sshuser = nullptr, *sshport = nullptr, *options = nullptr;
+    auto cs = NewConfigSet();
+    ConfigSetAddFile( cs, cfgPath.c_str() );
+    if( !GetConfigSetKey( "rsync.remote", &remote, cs ) )
+    {
+        fprintf( stderr, "No rsync.remote in %s", cfgPath.c_str() );
+        exit( 1 );
+    }
+    GetConfigSetKey( "rsync.sshport", &sshport, cs );
+    GetConfigSetKey( "rsync.sshuser", &sshuser, cs );
+    GetConfigSetKey( "rsync.options", &options, cs );
+
+    if( sshport || sshuser )
+    {
+        memcpy( ptr, " --rssh=ssh", 11 );
+        ptr += 11;
+        if( sshport )
+        {
+            memcpy( ptr, "\\ -p\\ ", 6 );
+            ptr += 6;
+            auto len = strlen( sshport );
+            memcpy( ptr, sshport, len );
+            ptr += len;
+        }
+        if( sshuser )
+        {
+            memcpy( ptr, "\\ -l\\ ", 6 );
+            ptr += 6;
+            auto len = strlen( sshuser );
+            memcpy( ptr, sshuser, len );
+            ptr += len;
+        }
+    }
+
+    if( options )
+    {
+        *ptr++ = ' ';
+        auto len = strlen( options );
+        memcpy( ptr, options, len );
+        ptr += len;
+    }
+
+    *ptr++ = ' ';
+    if( push )
+    {
+        auto len = m_objdir.size();
+        memcpy( ptr, m_objdir.c_str(), len );
+        ptr += len;
+        *ptr++ = '/';
+        *ptr++ = ' ';
+        len = strlen( remote );
+        memcpy( ptr, remote, len );
+        ptr += len;
+        *ptr++ = '/';
+    }
+    else
+    {
+        auto len = strlen( remote );
+        memcpy( ptr, remote, len );
+        ptr += len;
+        *ptr++ = '/';
+        *ptr++ = ' ';
+        len = m_objdir.size();
+        memcpy( ptr, m_objdir.c_str(), len );
+        ptr += len;
+        *ptr++ = '/';
+    }
+
+    *ptr = '\0';
+    printf( "%s %s\n", push ? "Pushing to" : "Pulling from", remote );
+    FreeConfigSet( cs );
+    return cmd;
+}
+
 set_str Lard::ReferencedObjects( bool all )
 {
     set_str ret;
