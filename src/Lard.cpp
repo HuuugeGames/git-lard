@@ -401,6 +401,11 @@ void Lard::Pull( int argc, char** argv )
 
     DBGPRINT( "Rev: " << ( rev ? rev : "(none)" ) << ", all: " << all );
 
+    const auto catalog = ListDirectory( m_objdir );
+    const auto referenced = ReferencedObjects( all, rev );
+    const auto orphans = RelativeComplement( referenced, catalog );
+    // TODO: match orphans against patterns (in argv, if n<argc)
+
     const char* cmd = GetRsyncCommand( false );
     DBGPRINT( "Executing: " << cmd );
 
