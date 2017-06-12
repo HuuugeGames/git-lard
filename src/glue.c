@@ -102,6 +102,23 @@ void AddRevAll( struct rev_info* revs )
     verify( setup_revisions( 2, argv, revs, NULL ) == 1 );
 }
 
+int AddRev( struct rev_info* revs, const char* rev )
+{
+    unsigned char sha1[20];
+    struct object* obj;
+    if( get_sha1( rev, sha1 ) )
+    {
+        return 1;
+    }
+    obj = parse_object( sha1 );
+    if( !obj )
+    {
+        return 1;
+    }
+    add_pending_object( revs, obj, rev );
+    return 0;
+}
+
 void PrepareRevWalk( struct rev_info* revs )
 {
     verify( prepare_revision_walk( revs ) == 0 );
