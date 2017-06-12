@@ -78,7 +78,7 @@ void Lard::Status( int argc, char** argv )
     const auto catalog = ListDirectory( m_objdir );
     DBGPRINT( "Fat objects: " << catalog.size() );
     bool all = checkarg( argc, argv, "--all" ) != -1;
-    const auto referenced = ReferencedObjects( all );
+    const auto referenced = ReferencedObjects( all, nullptr );
     DBGPRINT( "Referenced objects: " << referenced.size() );
 
     const auto garbage = RelativeComplement( catalog, referenced );
@@ -112,7 +112,7 @@ void Lard::Status( int argc, char** argv )
 void Lard::GC()
 {
     const auto catalog = ListDirectory( m_objdir );
-    const auto referenced = ReferencedObjects( false );
+    const auto referenced = ReferencedObjects( false, nullptr );
     const auto garbage = RelativeComplement( catalog, referenced );
     printf( "Unreferenced objects to remove: %d\n", garbage.size() );
     for( auto& v : garbage )
@@ -568,7 +568,7 @@ const char* Lard::GetRsyncCommand( bool push ) const
     return cmd;
 }
 
-set_str Lard::ReferencedObjects( bool all )
+set_str Lard::ReferencedObjects( bool all, const char* rev )
 {
     set_str ret;
     ptr_set_str = &ret;
@@ -581,6 +581,14 @@ set_str Lard::ReferencedObjects( bool all )
     if( all )
     {
         AddRevAll( revs );
+    }
+    else if( rev )
+    {
+        if( AddRev( revs, rev ) != 0 )
+        {
+            fprintf( stderr, "Cannot resolve %s\n", rev );
+            exit( 1 );
+        }
     }
     else
     {

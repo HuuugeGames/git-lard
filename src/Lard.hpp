@@ -44,7 +44,7 @@ private:
 
     const char* GetRsyncCommand( bool push ) const;
 
-    set_str ReferencedObjects( bool all );
+    set_str ReferencedObjects( bool all, const char* rev );
     map_strsize GenLargeBlobs( int threshold );
 
     std::string m_prefix;
