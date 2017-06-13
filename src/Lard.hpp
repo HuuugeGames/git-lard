@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "StringHelpers.hpp"
 
@@ -42,7 +43,7 @@ private:
     static const char* Encode( const char* sha1, size_t size );
     const char* GetObjectFn( const char* sha1 ) const;
 
-    const char* GetRsyncCommand( bool push ) const;
+    std::vector<const char*> GetRsyncCommand( bool push ) const;
 
     set_str ReferencedObjects( bool all, const char* rev );
     map_strsize GenLargeBlobs( int threshold );

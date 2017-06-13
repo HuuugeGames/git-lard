@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include <openssl/ssl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include "Buffer.hpp"
 #include "Debug.hpp"
@@ -406,10 +408,37 @@ void Lard::Pull( int argc, char** argv )
     const auto orphans = RelativeComplement( referenced, catalog );
     // TODO: match orphans against patterns (in argv, if n<argc)
 
-    const char* cmd = GetRsyncCommand( false );
-    DBGPRINT( "Executing: " << cmd );
+    const auto cmd = GetRsyncCommand( false );
 
-    // fork
+    int fd[2];
+    verify( pipe( fd ) == 0 );
+    auto pid = fork();
+    assert( pid != -1 );
+    if( pid == 0 ) // child
+    {
+        close( fd[1] );
+        dup2( fd[0], STDIN_FILENO );
+        close( fd[0] );
+
+        char** args = new char*[cmd.size()+1];
+        auto ptr = args;
+        for( auto& v : cmd )
+        {
+            *ptr++ = strdup( v );
+        }
+        *ptr = nullptr;
+        execvp( "rsync", args );
+    }
+    else // parent
+    {
+        close( fd[0] );
+        for( auto& v : orphans )
+        {
+            write( fd[1], v, strlen( v ) + 1 );
+        }
+        close( fd[1] );
+        wait( nullptr );
+    }
 
     Checkout();
 }
@@ -491,11 +520,9 @@ const char* Lard::GetObjectFn( const char* sha1 ) const
     return fn;
 }
 
-const char* Lard::GetRsyncCommand( bool push ) const
+std::vector<const char*> Lard::GetRsyncCommand( bool push ) const
 {
-    static char cmd[2048] = "rsync --progress --ignore-existing --from0 --files-from=-";
-    static const auto initLen = strlen( cmd );
-    char* ptr = cmd + initLen;
+    std::vector<const char*> ret = { "-v", "--progress", "--ignore-existing", "--from0", "--files-from=-" };
 
     std::string cfgPath = std::string( GetGitWorkTree() ) + "/.gitfat";
 
@@ -513,64 +540,40 @@ const char* Lard::GetRsyncCommand( bool push ) const
 
     if( sshport || sshuser )
     {
-        memcpy( ptr, " --rssh=ssh", 11 );
-        ptr += 11;
+        std::ostringstream ss;
+        ss << "--rssh=ssh";
         if( sshport )
         {
-            memcpy( ptr, "\\ -p\\ ", 6 );
-            ptr += 6;
-            auto len = strlen( sshport );
-            memcpy( ptr, sshport, len );
-            ptr += len;
+            ss << " -p ";
+            ss << sshport;
         }
         if( sshuser )
         {
-            memcpy( ptr, "\\ -l\\ ", 6 );
-            ptr += 6;
-            auto len = strlen( sshuser );
-            memcpy( ptr, sshuser, len );
-            ptr += len;
+            ss << " -l ";
+            ss << sshuser;
         }
+        ret.emplace_back( strdup( ss.str().c_str() ) );
     }
 
     if( options )
     {
-        *ptr++ = ' ';
-        auto len = strlen( options );
-        memcpy( ptr, options, len );
-        ptr += len;
+        StringHelpers::split( options, std::back_inserter( ret ) );
     }
 
-    *ptr++ = ' ';
     if( push )
     {
-        auto len = m_objdir.size();
-        memcpy( ptr, m_objdir.c_str(), len );
-        ptr += len;
-        *ptr++ = '/';
-        *ptr++ = ' ';
-        len = strlen( remote );
-        memcpy( ptr, remote, len );
-        ptr += len;
-        *ptr++ = '/';
+        ret.emplace_back( strdup( ( m_objdir + "/" ).c_str() ) );
+        ret.emplace_back( strdup( ( std::string( remote ) + "/" ).c_str() ) );
     }
     else
     {
-        auto len = strlen( remote );
-        memcpy( ptr, remote, len );
-        ptr += len;
-        *ptr++ = '/';
-        *ptr++ = ' ';
-        len = m_objdir.size();
-        memcpy( ptr, m_objdir.c_str(), len );
-        ptr += len;
-        *ptr++ = '/';
+        ret.emplace_back( strdup( ( std::string( remote ) + "/" ).c_str() ) );
+        ret.emplace_back( strdup( ( m_objdir + "/" ).c_str() ) );
     }
 
-    *ptr = '\0';
     printf( "%s %s\n", push ? "Pushing to" : "Pulling from", remote );
     FreeConfigSet( cs );
-    return cmd;
+    return ret;
 }
 
 set_str Lard::ReferencedObjects( bool all, const char* rev )
