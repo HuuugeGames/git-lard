@@ -427,7 +427,10 @@ void Lard::Pull( int argc, char** argv )
             *ptr++ = strdup( v );
         }
         *ptr = nullptr;
-        execvp( "rsync", args );
+        if( execvp( "rsync", args ) == -1 )
+        {
+            exit( 1 );
+        }
     }
     else // parent
     {
@@ -437,7 +440,13 @@ void Lard::Pull( int argc, char** argv )
             write( fd[1], v, strlen( v ) + 1 );
         }
         close( fd[1] );
-        wait( nullptr );
+        int status;
+        int ret = wait( &status );
+        if( ret == -1 || !WIFEXITED( status ) || WEXITSTATUS( status ) != 0 )
+        {
+            fprintf( stderr, "Error executing rsync!\n" );
+            exit( 1 );
+        }
     }
 
     Checkout();
