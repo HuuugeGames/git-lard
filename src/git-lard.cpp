@@ -74,6 +74,8 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "index-filter" ) )
     {
+        printf( "TODO\n" );
+        exit( 1 );
     }
     else
     {
