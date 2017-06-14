@@ -322,8 +322,9 @@ void Lard::Checkout()
     Checkout( true );
 }
 
-void Lard::Checkout( bool showOrphans )
+void Lard::Checkout( bool _showOrphans )
 {
+    static bool showOrphans = _showOrphans;
     static char objbuf[1024];
     memcpy( objbuf, m_objdir.c_str(), m_objdir.size() );
     static char* objbufptr = objbuf + m_objdir.size();
@@ -376,7 +377,7 @@ void Lard::Checkout( bool showOrphans )
             }
             fclose( f );
         }
-        else
+        else if( showOrphans )
         {
             printf( "Data unavailable: %s %s\n", sha1, localFn );
         }
