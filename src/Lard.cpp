@@ -74,6 +74,19 @@ static std::vector<const char*> RelativeComplement( const set_str& s1, const set
     return ret;
 }
 
+static std::vector<const char*> Intersect( const set_str& s1, const set_str& s2 )
+{
+    std::vector<const char*> ret;
+    for( auto& v : s1 )
+    {
+        if( s2.find( v ) != s2.end() )
+        {
+            ret.emplace_back( v );
+        }
+    }
+    return ret;
+}
+
 void Lard::Status( int argc, char** argv )
 {
     Setup();
