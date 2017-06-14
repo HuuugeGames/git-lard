@@ -422,47 +422,21 @@ void Lard::Pull( int argc, char** argv )
     // TODO: match orphans against patterns (in argv, if n<argc)
 
     const auto cmd = GetRsyncCommand( false );
-
-    int fd[2];
-    verify( pipe( fd ) == 0 );
-    auto pid = fork();
-    assert( pid != -1 );
-    if( pid == 0 ) // child
-    {
-        close( fd[1] );
-        dup2( fd[0], STDIN_FILENO );
-        close( fd[0] );
-
-        char** args = new char*[cmd.size()+1];
-        auto ptr = args;
-        for( auto& v : cmd )
-        {
-            *ptr++ = strdup( v );
-        }
-        *ptr = nullptr;
-        if( execvp( "rsync", args ) == -1 )
-        {
-            exit( 1 );
-        }
-    }
-    else // parent
-    {
-        close( fd[0] );
-        for( auto& v : orphans )
-        {
-            write( fd[1], v, strlen( v ) + 1 );
-        }
-        close( fd[1] );
-        int status;
-        int ret = wait( &status );
-        if( ret == -1 || !WIFEXITED( status ) || WEXITSTATUS( status ) != 0 )
-        {
-            fprintf( stderr, "Error executing rsync!\n" );
-            exit( 1 );
-        }
-    }
+    ExecuteRsync( cmd, orphans );
 
     Checkout();
+}
+
+void Lard::Push( int argc, char** argv )
+{
+    Setup();
+    bool all = checkarg( argc, argv, "--all" ) != -1;
+    const auto catalog = ListDirectory( m_objdir );
+    const auto referenced = ReferencedObjects( all, nullptr );
+    const auto files = Intersect( catalog, referenced );
+
+    const auto cmd = GetRsyncCommand( true );
+    ExecuteRsync( cmd, files );
 }
 
 void Lard::Setup()
@@ -596,6 +570,48 @@ std::vector<const char*> Lard::GetRsyncCommand( bool push ) const
     printf( "%s %s\n", push ? "Pushing to" : "Pulling from", remote );
     FreeConfigSet( cs );
     return ret;
+}
+
+void Lard::ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const
+{
+    int fd[2];
+    verify( pipe( fd ) == 0 );
+    auto pid = fork();
+    assert( pid != -1 );
+    if( pid == 0 ) // child
+    {
+        close( fd[1] );
+        dup2( fd[0], STDIN_FILENO );
+        close( fd[0] );
+
+        char** args = new char*[cmd.size()+1];
+        auto ptr = args;
+        for( auto& v : cmd )
+        {
+            *ptr++ = strdup( v );
+        }
+        *ptr = nullptr;
+        if( execvp( "rsync", args ) == -1 )
+        {
+            exit( 1 );
+        }
+    }
+    else // parent
+    {
+        close( fd[0] );
+        for( auto& v : files )
+        {
+            write( fd[1], v, strlen( v ) + 1 );
+        }
+        close( fd[1] );
+        int status;
+        int ret = wait( &status );
+        if( ret == -1 || !WIFEXITED( status ) || WEXITSTATUS( status ) != 0 )
+        {
+            fprintf( stderr, "Error executing rsync!\n" );
+            exit( 1 );
+        }
+    }
 }
 
 set_str Lard::ReferencedObjects( bool all, const char* rev )

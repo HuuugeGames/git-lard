@@ -27,6 +27,7 @@ public:
     void Smudge();
     void Checkout();
     void Pull( int argc, char** argv );
+    void Push( int argc, char** argv );
 
 private:
     void Setup();
@@ -44,6 +45,7 @@ private:
     const char* GetObjectFn( const char* sha1 ) const;
 
     std::vector<const char*> GetRsyncCommand( bool push ) const;
+    void ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const;
 
     set_str ReferencedObjects( bool all, const char* rev );
     map_strsize GenLargeBlobs( int threshold );

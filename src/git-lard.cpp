@@ -51,6 +51,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "push" ) )
     {
+        lard.Push( argc-2, argv+2 );
     }
     else if( CSTR( "pull" ) )
     {
