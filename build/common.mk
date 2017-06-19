@@ -8,7 +8,7 @@ INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
 
 LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
 CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>' -I$(GITDIR)/compat/regex
-CXXFLAGS = $(CFLAGS) -std=c++14
+CXXFLAGS = $(CFLAGS) -std=gnu++14
 
 ifneq (,$(WINDIR))
 LIBS += -lintl -liconv
