@@ -43,7 +43,7 @@ const char* GetGitWorkTree()
 
 void ParsePathspec( const char* prefix )
 {
-    parse_pathspec( &pathspec, 0, PATHSPEC_PREFER_CWD | PATHSPEC_STRIP_SUBMODULE_SLASH_CHEAP, prefix, NULL );
+    parse_pathspec( &pathspec, 0, PATHSPEC_PREFER_CWD, prefix, NULL );
 }
 
 int CheckIfConfigKeyExists( const char* key )
@@ -104,13 +104,13 @@ void AddRevAll( struct rev_info* revs )
 
 int AddRev( struct rev_info* revs, const char* rev )
 {
-    unsigned char sha1[20];
+    struct object_id oid;
     struct object* obj;
-    if( get_sha1( rev, sha1 ) )
+    if( get_oid( rev, &oid ) )
     {
         return 1;
     }
-    obj = parse_object( sha1 );
+    obj = parse_object( &oid );
     if( !obj )
     {
         return 1;
