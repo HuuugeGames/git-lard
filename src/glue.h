@@ -40,6 +40,7 @@ void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 
 int ReadCache();
 void ListFiles( void(*cb)( const char*, const char* ) );
+void CheckoutFiles( const char*(*cb)() );
 
 const char* GetSha1( const char* name );
 

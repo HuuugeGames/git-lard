@@ -339,6 +339,8 @@ void Lard::Checkout( bool _showOrphans )
         exit( 1 );
     }
 
+    static std::vector<const char*> fileList;
+
     auto cb = []( const char* fn, const char* localFn ) {
         struct stat sb;
         if( stat( fn, &sb ) != 0 ) return;
@@ -352,30 +354,11 @@ void Lard::Checkout( bool _showOrphans )
         if( !Decode( buf, sha1, size ) ) return;
 
         memcpy( objbufptr, sha1, 40 );
-        f = fopen( objbuf, "rb" );
-        if( f )
+
+        if( stat( objbuf, &sb ) == 0 )
         {
-            FILE* out = fopen( fn, "wb" );
-            if( out )
-            {
-                // TODO: Original git-fat implementation restores file permissions here
-                printf( "Restoring %s -> %s\n", sha1, localFn );
-                enum { ChunkSize = 64 * 1024 };
-                char buf[ChunkSize];
-                size_t len;
-                do
-                {
-                    len = fread( buf, 1, ChunkSize, f );
-                    fwrite( buf, 1, len, out );
-                }
-                while( len == ChunkSize );
-                fclose( out );
-            }
-            else
-            {
-                printf( "Cannot open %s for writing during %s restore\n", localFn, sha1 );
-            }
-            fclose( f );
+            printf( "Restoring %s -> %s\n", sha1, localFn );
+            fileList.emplace_back( strdup( fn ) );
         }
         else if( showOrphans )
         {
@@ -384,6 +367,19 @@ void Lard::Checkout( bool _showOrphans )
     };
 
     ListFiles( cb );
+
+    static auto it = fileList.begin();
+    auto listCb = []() -> const char* {
+        if( it == fileList.end() )
+        {
+            return nullptr;
+        }
+        return *it++;
+    };
+
+    CheckoutFiles( listCb );
+
+    // deliberately leak fileList here
 }
 
 void Lard::Pull( int argc, char** argv )

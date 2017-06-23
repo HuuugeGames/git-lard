@@ -9,6 +9,7 @@
 #include "git/revision.h"
 #include "git/list-objects.h"
 #include "git/submodule.h"
+#include "git/lockfile.h"
 
 #include "glue.h"
 #include "verify.h"
@@ -227,6 +228,46 @@ void ListFiles( void(*cb)( const char*, const char* ) )
         {
             cb( buf, buf + prefixlen );
         }
+    }
+}
+
+static struct lock_file lock_file;
+
+void CheckoutFiles( const char*(*cb)() )
+{
+    const char* fn = cb();
+    if( !fn ) return;
+
+    struct checkout state = CHECKOUT_INIT;
+
+    state.force = 1;
+    state.refresh_cache = 1;
+    state.istate = &the_index;
+
+    int newfd = hold_locked_index( &lock_file, LOCK_DIE_ON_ERROR );
+
+    while( fn )
+    {
+        int namelen = strlen( fn );
+        int pos = cache_name_pos( fn, namelen );
+
+        if( pos < 0 ) pos = -pos - 1;
+
+        while( pos < active_nr )
+        {
+            struct cache_entry* ce = active_cache[pos];
+            if( ce_namelen( ce ) != namelen || memcmp( ce->name, fn, namelen ) ) break;
+            pos++;
+            checkout_entry( ce, &state, NULL );
+        }
+
+        fn = cb();
+    }
+
+    if( 0 <= newfd && write_locked_index( &the_index, &lock_file, COMMIT_LOCK ) )
+    {
+        fprintf( stderr, "Unable to write new index file\n" );
+        exit( 1 );
     }
 }
 
