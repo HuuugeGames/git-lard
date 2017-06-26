@@ -371,15 +371,22 @@ void Lard::Checkout( bool _showOrphans )
     ListFiles( cb );
 
     static auto it = fileList.begin();
+    static int cnt = 0;
     auto listCb = []() -> const char* {
         if( it == fileList.end() )
         {
             return nullptr;
         }
+        if( ++cnt % 64 == 0 )
+        {
+            printf( "." );
+            fflush( stdout );
+        }
         return *it++;
     };
 
     CheckoutFiles( listCb );
+    printf( "\n" );
 
     // deliberately leak fileList here
 }
