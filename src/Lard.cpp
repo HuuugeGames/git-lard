@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <utime.h>
 #include <vector>
 #include <openssl/ssl.h>
 #include <sys/types.h>
@@ -359,6 +360,7 @@ void Lard::Checkout( bool _showOrphans )
         {
             printf( "Restoring %s -> %s\n", sha1, localFn );
             fileList.emplace_back( strdup( fn ) );
+            utime( fn, nullptr );
         }
         else if( showOrphans )
         {
