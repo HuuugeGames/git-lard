@@ -22,7 +22,6 @@ const char* SetupGitDirectory()
 {
     const char* prefix = setup_git_directory();
     prefixlen = prefix ? strlen( prefix ) : 0;
-    gitmodules_config();
     return prefix;
 }
 
