@@ -544,7 +544,7 @@ std::vector<const char*> Lard::GetRsyncCommand( bool push ) const
     if( sshport || sshuser )
     {
         std::ostringstream ss;
-        ss << "--rssh=ssh";
+        ss << "--rsh=ssh";
         if( sshport )
         {
             ss << " -p ";
