@@ -302,6 +302,7 @@ void Lard::Smudge()
         else
         {
             DBGPRINT( "git-lard filter-smudge: fat object missing " << fn );
+            fwrite( buf, 1, GitFatMagic, stdout );
         }
     }
     else
