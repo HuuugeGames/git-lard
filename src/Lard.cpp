@@ -94,7 +94,7 @@ void Lard::Status( int argc, char** argv )
     const auto catalog = ListDirectory( m_objdir );
     DBGPRINT( "Fat objects: " << catalog.size() );
     bool all = checkarg( argc, argv, "--all" ) != -1;
-    const auto referenced = ReferencedObjects( all, nullptr );
+    const auto referenced = ReferencedObjects( all, false, nullptr );
     DBGPRINT( "Referenced objects: " << referenced.size() );
 
     const auto garbage = RelativeComplement( catalog, referenced );
@@ -128,7 +128,7 @@ void Lard::Status( int argc, char** argv )
 void Lard::GC()
 {
     const auto catalog = ListDirectory( m_objdir );
-    const auto referenced = ReferencedObjects( false, nullptr );
+    const auto referenced = ReferencedObjects( false, false, nullptr );
     const auto garbage = RelativeComplement( catalog, referenced );
     printf( "Unreferenced objects to remove: %d\n", garbage.size() );
     for( auto& v : garbage )
@@ -391,6 +391,7 @@ void Lard::Pull( int argc, char** argv )
     Setup();
 
     bool all = false;
+    bool nowalk = true;
     const char* rev = nullptr;
 
     int n;
@@ -406,6 +407,11 @@ void Lard::Pull( int argc, char** argv )
             if( strcmp( argv[n]+1, "-all" ) == 0 )
             {
                 all = true;
+                nowalk = false;
+            }
+            else if( strcmp( argv[n]+1, "-history" ) == 0 )
+            {
+                nowalk = false;
             }
         }
         else
@@ -418,7 +424,7 @@ void Lard::Pull( int argc, char** argv )
     DBGPRINT( "Rev: " << ( rev ? rev : "(none)" ) << ", all: " << all );
 
     const auto catalog = ListDirectory( m_objdir );
-    const auto referenced = ReferencedObjects( all, rev );
+    const auto referenced = ReferencedObjects( all, nowalk, rev );
     const auto orphans = RelativeComplement( referenced, catalog );
     // TODO: match orphans against patterns (in argv, if n<argc)
 
@@ -433,7 +439,7 @@ void Lard::Push( int argc, char** argv )
     Setup();
     bool all = checkarg( argc, argv, "--all" ) != -1;
     const auto catalog = ListDirectory( m_objdir );
-    const auto referenced = ReferencedObjects( all, nullptr );
+    const auto referenced = ReferencedObjects( all, false, nullptr );
     const auto files = Intersect( catalog, referenced );
 
     const auto cmd = GetRsyncCommand( true );
@@ -615,7 +621,7 @@ void Lard::ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<
     }
 }
 
-set_str Lard::ReferencedObjects( bool all, const char* rev )
+set_str Lard::ReferencedObjects( bool all, bool nowalk, const char* rev )
 {
     set_str ret;
     ptr_set_str = &ret;
@@ -642,7 +648,7 @@ set_str Lard::ReferencedObjects( bool all, const char* rev )
         AddRevHead( revs );
     }
     PrepareRevWalk( revs );
-    GetFatObjectsFromRevs( revs, cb );
+    GetFatObjectsFromRevs( revs, nowalk, cb );
     FreeRevs( revs );
 
     return ret;

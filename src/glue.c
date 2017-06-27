@@ -159,10 +159,11 @@ static void show_fat_object( struct object* obj, const char* name, void* data )
     }
 }
 
-void GetFatObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) )
+void GetFatObjectsFromRevs( struct rev_info* revs, int nowalk, void(*cb)( char* ) )
 {
     revs->blob_objects = 1;
     revs->tree_objects = 1;
+    revs->no_walk = nowalk;
     traverse_commit_list( revs, null_show_commit, show_fat_object, cb );
 }
 

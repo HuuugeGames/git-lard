@@ -34,7 +34,7 @@ void PrepareRevWalk( struct rev_info* revs );
 void FreeRevs( struct rev_info* revs );
 
 struct commit* GetRevision( struct rev_info* revs );
-void GetFatObjectsFromRevs( struct rev_info* revs, void(*cb)( char* ) );
+void GetFatObjectsFromRevs( struct rev_info* revs, int nowalk, void(*cb)( char* ) );
 void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 

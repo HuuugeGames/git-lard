@@ -47,7 +47,7 @@ private:
     std::vector<const char*> GetRsyncCommand( bool push ) const;
     void ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const;
 
-    set_str ReferencedObjects( bool all, const char* rev );
+    set_str ReferencedObjects( bool all, bool nowalk, const char* rev );
     map_strsize GenLargeBlobs( int threshold );
 
     std::string m_prefix;
