@@ -1,4 +1,5 @@
 #include <memory>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +30,15 @@ int main( int argc, char** argv )
 
     auto err = std::make_unique<StdErrDebugCallback>();
     DebugLog::AddCallback( err.get() );
+
+#ifdef _DEBUG
+    std::ostringstream s;
+    for( int i=0; i<argc; i++ )
+    {
+        s << argv[i] << " ";
+    }
+    DBGPRINT( "Command line: " << s.str() );
+#endif
 
     Lard lard;
 
