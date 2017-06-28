@@ -64,7 +64,12 @@ int GetConfigKey( const char* key, const char** val )
 
 int GetConfigSetKey( const char* key, const char** val, struct config_set* cs )
 {
-    return !git_configset_get_value( cs, key, val );
+    int ret = git_configset_get_value( cs, key, val );
+    if( ret )
+    {
+        ret = git_config_get_value( key, val );
+    }
+    return !ret;
 }
 
 struct config_set* NewConfigSet()
