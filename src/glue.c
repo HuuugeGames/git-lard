@@ -49,7 +49,7 @@ void ParsePathspec( const char* prefix )
 int CheckIfConfigKeyExists( const char* key )
 {
     const char* tmp;
-    return git_config_get_value( key, &tmp );
+    return !git_config_get_value( key, &tmp );
 }
 
 void SetConfigKey( const char* key, const char* val )

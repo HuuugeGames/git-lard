@@ -453,7 +453,7 @@ void Lard::Setup()
 
 bool Lard::IsInitDone()
 {
-    return CheckIfConfigKeyExists( "filter.fat.clean" ) == 0 || CheckIfConfigKeyExists( "filter.fat.smudge" ) == 0;
+    return CheckIfConfigKeyExists( "filter.fat.clean" ) && CheckIfConfigKeyExists( "filter.fat.smudge" );
 }
 
 void Lard::AssertInitDone()
