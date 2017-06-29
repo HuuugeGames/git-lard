@@ -332,6 +332,7 @@ void Lard::Checkout( bool _showOrphans )
     static char* objbufptr = objbuf + m_objdir.size();
     *objbufptr++ = '/';
     objbufptr[40] = '\0';
+    static int objbufskip = objbufptr - objbuf;
 
     AssertInitDone();
     ParsePathspec( m_prefix.c_str() );
@@ -341,7 +342,7 @@ void Lard::Checkout( bool _showOrphans )
         exit( 1 );
     }
 
-    static std::vector<const char*> fileList;
+    static std::vector<std::pair<const char*, const char*>> fileList;
 
     auto cb = []( const char* fn, const char* localFn ) {
         struct stat sb;
@@ -359,7 +360,7 @@ void Lard::Checkout( bool _showOrphans )
 
         if( stat( objbuf, &sb ) == 0 )
         {
-            fileList.emplace_back( strdup( fn ) );
+            fileList.emplace_back( strdup( objbuf ), strdup( fn ) );
             utime( fn, nullptr );
         }
         else if( showOrphans )
@@ -371,13 +372,15 @@ void Lard::Checkout( bool _showOrphans )
     ListFiles( cb );
 
     static auto it = fileList.begin();
-    auto listCb = []() -> const char* {
+    auto listCb = []() -> struct CheckoutData {
         if( it == fileList.end() )
         {
-            return nullptr;
+            return CheckoutData {};
         }
-        printf( "Restoring %s\n", *it );
-        return *it++;
+        printf( "Restoring %s -> %s\n", it->first + objbufskip, it->second );
+        CheckoutData ret { it->first, it->second };
+        ++it;
+        return ret;
     };
 
     CheckoutFiles( listCb );

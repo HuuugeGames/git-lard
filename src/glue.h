@@ -38,9 +38,15 @@ void GetFatObjectsFromRevs( struct rev_info* revs, int nowalk, void(*cb)( char* 
 void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 
+struct CheckoutData
+{
+    const char* from;
+    const char* to;
+};
+
 int ReadCache();
 void ListFiles( void(*cb)( const char*, const char* ) );
-void CheckoutFiles( const char*(*cb)() );
+void CheckoutFiles( struct CheckoutData(*cb)() );
 
 const char* GetSha1( const char* name );
 

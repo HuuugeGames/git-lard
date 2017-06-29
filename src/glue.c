@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -238,36 +239,55 @@ void ListFiles( void(*cb)( const char*, const char* ) )
 
 static struct lock_file lock_file;
 
-void CheckoutFiles( const char*(*cb)() )
+void CheckoutFiles( struct CheckoutData(*cb)() )
 {
-    const char* fn = cb();
-    if( !fn ) return;
+    struct CheckoutData data = cb();
+    if( !data.from ) return;
 
-    struct checkout state = CHECKOUT_INIT;
-
-    state.force = 1;
-    state.refresh_cache = 1;
-    state.istate = &the_index;
-
+    assert( &the_index );
     int newfd = hold_locked_index( &lock_file, LOCK_DIE_ON_ERROR );
 
-    while( fn )
+    do
     {
-        int namelen = strlen( fn );
-        int pos = cache_name_pos( fn, namelen );
+        int namelen = strlen( data.to );
+        int pos = cache_name_pos( data.to, namelen );
 
         if( pos < 0 ) pos = -pos - 1;
 
         while( pos < active_nr )
         {
             struct cache_entry* ce = active_cache[pos];
-            if( ce_namelen( ce ) != namelen || memcmp( ce->name, fn, namelen ) ) break;
+            if( ce_namelen( ce ) != namelen || memcmp( ce->name, data.to, namelen ) ) break;
             pos++;
-            checkout_entry( ce, &state, NULL );
-        }
 
-        fn = cb();
+            FILE* in = fopen( data.from, "rb" );
+            FILE* out = fopen( data.to, "wb" );
+
+            enum { BufSize = 64 * 1024 };
+            char buf[BufSize];
+            int size;
+            do
+            {
+                size = fread( buf, 1, BufSize, in );
+                fwrite( buf, 1, size, out );
+            }
+            while( size == BufSize );
+
+            fclose( in );
+            fclose( out );
+
+            struct stat st;
+            lstat( ce->name, &st );
+            fill_stat_cache_info( ce, &st );
+            ce->ce_flags |= CE_UPDATE_IN_BASE;
+
+            break;
+        }
+        data = cb();
     }
+    while( data.from );
+
+    the_index.cache_changed |= CE_ENTRY_CHANGED;
 
     if( 0 <= newfd && write_locked_index( &the_index, &lock_file, COMMIT_LOCK ) )
     {
