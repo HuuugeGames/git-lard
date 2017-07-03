@@ -666,12 +666,12 @@ map_strsize Lard::GenLargeBlobs( int threshold )
     map_strsize ret;
     ptr_map_strsize = &ret;
     s_glb_numblobs = 0;
-    s_glb_numlarge = 1;     // ??? Shouldn't this be 0?
+    s_glb_numlarge = 0;
     s_glb_threshold = threshold;
 
     auto cb = []( char* ptr, size_t size ) {
         s_glb_numblobs++;
-        if( size > s_glb_threshold )    // ??? This contradicts message below!
+        if( size >= s_glb_threshold )
         {
             s_glb_numlarge++;
             assert( ptr_map_strsize->find( ptr ) == ptr_map_strsize->end() );
