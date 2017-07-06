@@ -1,0 +1,16 @@
+To build git-lard under cygwin you need to install the following packages:
+- gcc-g++
+- libiconv-devel
+- libintl-devel
+- make
+- openssl-devel
+- zlib-devel
+
+Make sure you have initialized submodules:
+~/git-lard$ git submodule update --init
+
+Execute build command:
+~/git-lard/build$ make release
+
+Copy the resulting git-lard.exe to /usr/bin or ~/bin (if it's in your $PATH)
+as git-fat.exe.
