@@ -338,6 +338,7 @@ void Lard::Checkout()
 
     static std::vector<std::pair<const char*, const char*>> fileList;
     static shaset missingBlobs;
+    static shamap blobToCommit;
 
     auto cb = []( const char* fn, const char* localFn, const char* fileSha ) {
         struct stat sb;
@@ -392,11 +393,15 @@ void Lard::Checkout()
             auto it = missingBlobs.find( blob );
             return it == missingBlobs.end() ? 0 : 1;
         };
+        auto add = []( const char* blob, const char* commit )
+        {
+            blobToCommit[blob] = commit;
+        };
 
         rev_info* revs = NewRevInfo();
         AddRevHead( revs );
         PrepareRevWalk( revs );
-        GetCommitsForBlobs( revs, find );
+        GetCommitsForBlobs( revs, find, add );
         FreeRevs( revs );
     }
 

@@ -204,6 +204,7 @@ void GetCommitList( struct rev_info* revs, void(*cb)( char* ) )
 struct TreeCallbacks
 {
     int(*find)( const char* );
+    void(*add)( const char*, const char* );
 };
 
 static struct commit* tree_commit;
@@ -224,16 +225,17 @@ static int ReadTree( const unsigned char* sha1, struct strbuf* base, const char*
     int found = cb->find( sha1 );
     if( found )
     {
-        printf( "Found: %s\n", sha1_to_hex( tree_commit->object.oid.hash ) );
+        cb->add( sha1, tree_commit->object.oid.hash );
     }
 
     return 0;
 }
 
-void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ) )
+void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(*add)( const char*, const char* ) )
 {
     struct TreeCallbacks cb;
     cb.find = find;
+    cb.add = add;
     while( ( tree_commit = get_revision( revs ) ) != NULL )
     {
         read_tree_recursive( tree_commit->tree, "", 0, 0, &pathspec, ReadTree, &cb );
