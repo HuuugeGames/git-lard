@@ -428,12 +428,12 @@ void Lard::Pull( int argc, char** argv )
     const auto cmd = GetRsyncCommand( false );
     bool ret = ExecuteRsync( cmd, orphans );
 
+    Checkout();
+
     if( !ret )
     {
         exit( 1 );
     }
-
-    Checkout();
 }
 
 void Lard::Push( int argc, char** argv )
