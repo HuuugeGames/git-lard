@@ -393,7 +393,7 @@ void Lard::Checkout()
             auto it = missingBlobs.find( blob );
             return it == missingBlobs.end() ? 0 : 1;
         };
-        auto add = []( const char* blob, const char* commit )
+        auto add = []( const char* blob, struct commit* commit )
         {
             blobToCommit[blob] = commit;
         };

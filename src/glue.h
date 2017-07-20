@@ -37,7 +37,7 @@ struct commit* GetRevision( struct rev_info* revs );
 void GetFatObjectsFromRevs( struct rev_info* revs, int nowalk, void(*cb)( char* ) );
 void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
-void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(*add)( const char*, const char* ) );
+void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(*add)( const char*, struct commit* ) );
 
 struct CheckoutData
 {

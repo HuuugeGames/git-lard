@@ -9,6 +9,8 @@
 #include <unordered_set>
 #include "../xxHash/xxhash.h"
 
+struct commit;
+
 namespace StringHelpers
 {
     struct hash { size_t operator()( const char* v ) const { return XXH32( v, strlen( v ), 0 ); } };
@@ -53,6 +55,6 @@ namespace StringHelpers
 
 using stringset = std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>;
 using shaset = std::unordered_set<const char*, StringHelpers::hash_sha, StringHelpers::equal_to_sha>;
-using shamap = std::unordered_map<const char*, const char*, StringHelpers::hash_sha, StringHelpers::equal_to_sha>;
+using shamap = std::unordered_map<const char*, struct commit*, StringHelpers::hash_sha, StringHelpers::equal_to_sha>;
 
 #endif
