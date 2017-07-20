@@ -14,6 +14,10 @@ namespace StringHelpers
     struct equal_to { bool operator()( const char* l, const char* r ) const { return strcmp( l, r ) == 0; } };
     struct less { bool operator()( const char* l, const char* r ) const { return strcmp( l, r ) < 0; } };
 
+    struct hash_sha { size_t operator()( const char* v ) const { return XXH32( v, 20, 0 ); } };
+    struct equal_to_sha { bool operator()( const char* l, const char* r ) const { return memcmp( l, r, 20 ) == 0; } };
+    struct less_sha { bool operator()( const char* l, const char* r ) const { return memcmp( l, r, 20 ) < 0; } };
+
     namespace
     {
         static inline bool _isspace( char c )
@@ -47,5 +51,6 @@ namespace StringHelpers
 }
 
 using stringset = std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to>;
+using shaset = std::unordered_set<const char*, StringHelpers::hash_sha, StringHelpers::equal_to_sha>;
 
 #endif
