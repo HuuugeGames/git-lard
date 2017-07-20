@@ -384,6 +384,22 @@ void Lard::Checkout()
     CheckoutFiles( listCb );
     printf( "\n" );
 
+    if( !missingBlobs.empty() )
+    {
+        printf( "!! Missing files !!\n" );
+
+        auto find = []( const char* blob ) -> int {
+            auto it = missingBlobs.find( blob );
+            return it == missingBlobs.end() ? 0 : 1;
+        };
+
+        rev_info* revs = NewRevInfo();
+        AddRevHead( revs );
+        PrepareRevWalk( revs );
+        GetCommitsForBlobs( revs, find );
+        FreeRevs( revs );
+    }
+
     // deliberately leak fileList here
 }
 
