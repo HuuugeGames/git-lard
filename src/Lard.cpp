@@ -337,8 +337,9 @@ void Lard::Checkout()
     }
 
     static std::vector<std::pair<const char*, const char*>> fileList;
+    static shaset missingBlobs;
 
-    auto cb = []( const char* fn, const char* localFn ) {
+    auto cb = []( const char* fn, const char* localFn, const char* fileSha ) {
         struct stat sb;
         if( stat( fn, &sb ) != 0 ) return;
         if( sb.st_size != GitFatMagic ) return;
@@ -359,6 +360,9 @@ void Lard::Checkout()
         }
         else
         {
+            char* blob = new char[20];
+            memcpy( blob, fileSha, 20 );
+            missingBlobs.emplace( blob );
             printf( "Data unavailable: %s %s\n", sha1, localFn );
         }
     };

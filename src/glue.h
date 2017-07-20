@@ -45,7 +45,7 @@ struct CheckoutData
 };
 
 int ReadCache();
-void ListFiles( void(*cb)( const char*, const char* ) );
+void ListFiles( void(*cb)( const char*, const char*, const char* ) );
 void CheckoutFiles( struct CheckoutData(*cb)() );
 
 const char* GetSha1( const char* name );
