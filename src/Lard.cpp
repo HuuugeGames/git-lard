@@ -432,7 +432,12 @@ void Lard::Pull( int argc, char** argv )
     // TODO: match orphans against patterns (in argv, if n<argc)
 
     const auto cmd = GetRsyncCommand( false );
-    ExecuteRsync( cmd, orphans );
+    bool ret = ExecuteRsync( cmd, orphans );
+
+    if( !ret )
+    {
+        exit( 1 );
+    }
 
     Checkout();
 }
@@ -446,7 +451,10 @@ void Lard::Push( int argc, char** argv )
     const auto files = Intersect( catalog, referenced );
 
     const auto cmd = GetRsyncCommand( true );
-    ExecuteRsync( cmd, files );
+    if( !ExecuteRsync( cmd, files ) )
+    {
+        exit( 1 );
+    }
 }
 
 void Lard::Setup()
