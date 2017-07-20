@@ -582,7 +582,7 @@ std::vector<const char*> Lard::GetRsyncCommand( bool push ) const
     return ret;
 }
 
-void Lard::ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const
+bool Lard::ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const
 {
     int fd[2];
     verify( pipe( fd ) == 0 );
@@ -619,9 +619,10 @@ void Lard::ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<
         if( ret == -1 || !WIFEXITED( status ) || WEXITSTATUS( status ) != 0 )
         {
             fprintf( stderr, "Error executing rsync!\n" );
-            exit( 1 );
+            return false;
         }
     }
+    return true;
 }
 
 set_str Lard::ReferencedObjects( bool all, bool nowalk, const char* rev )

@@ -45,7 +45,7 @@ private:
     const char* GetObjectFn( const char* sha1 ) const;
 
     std::vector<const char*> GetRsyncCommand( bool push ) const;
-    void ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const;
+    bool ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const;
 
     set_str ReferencedObjects( bool all, bool nowalk, const char* rev );
     map_strsize GenLargeBlobs( int threshold );
