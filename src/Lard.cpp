@@ -321,12 +321,6 @@ void Lard::Smudge()
 
 void Lard::Checkout()
 {
-    Checkout( true );
-}
-
-void Lard::Checkout( bool _showOrphans )
-{
-    static bool showOrphans = _showOrphans;
     static char objbuf[1024];
     memcpy( objbuf, m_objdir.c_str(), m_objdir.size() );
     static char* objbufptr = objbuf + m_objdir.size();
@@ -363,7 +357,7 @@ void Lard::Checkout( bool _showOrphans )
             fileList.emplace_back( strdup( objbuf ), strdup( fn ) );
             utime( fn, nullptr );
         }
-        else if( showOrphans )
+        else
         {
             printf( "Data unavailable: %s %s\n", sha1, localFn );
         }

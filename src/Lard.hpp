@@ -35,7 +35,6 @@ private:
     void AssertInitDone();
 
     void FilterClean( FILE* in, FILE* out );
-    void Checkout( bool showOrphans );
 
     const char* CalcSha1( const char* ptr, size_t size ) const;
     const char* Sha1ToHex( const unsigned char sha1[20] ) const;
