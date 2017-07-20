@@ -402,6 +402,12 @@ void Lard::Checkout()
         AddRevHead( revs );
         PrepareRevWalk( revs );
         GetCommitsForBlobs( revs, find, add );
+
+        for( auto& v : blobToCommit )
+        {
+            PrintBlobCommitInfo( v.first, v.second );
+        }
+
         FreeRevs( revs );
     }
 

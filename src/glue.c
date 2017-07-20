@@ -242,6 +242,12 @@ void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(
     }
 }
 
+void PrintBlobCommitInfo( const char* blob, struct commit* commit )
+{
+    printf( "Blob %s\n", sha1_to_hex( blob ) );
+    printf( "    Commit %s\n", sha1_to_hex( commit->object.oid.hash ) );
+}
+
 int ReadCache()
 {
     return read_cache();

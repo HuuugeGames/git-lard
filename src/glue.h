@@ -39,6 +39,8 @@ void GetObjectsFromRevs( struct rev_info* revs, void(*cb)( char*, size_t ) );
 void GetCommitList( struct rev_info* revs, void(*cb)( char* ) );
 void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(*add)( const char*, struct commit* ) );
 
+void PrintBlobCommitInfo( const char* blob, struct commit* commit );
+
 struct CheckoutData
 {
     const char* from;
