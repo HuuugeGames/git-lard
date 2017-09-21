@@ -8,6 +8,7 @@
 #  include <dirent.h>
 #endif
 
+#include <errno.h>
 #include <string.h>
 
 #ifndef DT_DIR
