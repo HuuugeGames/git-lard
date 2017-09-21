@@ -15,6 +15,11 @@ LIBS += -lintl -liconv
 CFLAGS += -DWIN32
 endif
 
+ifeq ($(shell uname), Darwin)
+INCLUDES += -I/usr/local/opt/openssl/include -I/opt/local/include
+LIBS += /opt/local/lib/libintl.a /usr/local/opt/libiconv/lib/libiconv.a -framework CoreFoundation
+endif
+
 TARGET = git-lard
 
 BUILDDIR = $(BUILD)$(POSTFIX)/.build/build
