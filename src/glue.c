@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "git/cache.h"
+#include "git/config.h"
 #include "git/dir.h"
 #include "git/git-compat-util.h"
 #include "git/pathspec.h"
@@ -151,7 +152,7 @@ static void show_fat_object( struct object* obj, const char* name, void* data )
         unsigned long size;
         struct object_info oi = { NULL };
         oi.sizep = &size;
-        sha1_object_info_extended( obj->oid.hash, &oi, LOOKUP_REPLACE_OBJECT );
+        sha1_object_info_extended( obj->oid.hash, &oi, OBJECT_INFO_LOOKUP_REPLACE );
         if( size == GitFatMagic )
         {
             enum object_type type;
@@ -180,7 +181,7 @@ static void show_object( struct object* obj, const char* name, void* data )
         unsigned long size;
         struct object_info oi = { NULL };
         oi.sizep = &size;
-        sha1_object_info_extended( obj->oid.hash, &oi, LOOKUP_REPLACE_OBJECT );
+        sha1_object_info_extended( obj->oid.hash, &oi, OBJECT_INFO_LOOKUP_REPLACE );
         ((void(*)(char*,size_t))data)( sha1_to_hex( obj->oid.hash ), size );
     }
 }
