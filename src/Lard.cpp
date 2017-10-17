@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <inttypes.h>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -130,11 +131,11 @@ void Lard::GC()
     const auto catalog = ListDirectory( m_objdir );
     const auto referenced = ReferencedObjects( false, false, nullptr );
     const auto garbage = RelativeComplement( catalog, referenced );
-    printf( "Unreferenced objects to remove: %d\n", garbage.size() );
+    printf( "Unreferenced objects to remove: %zu\n", garbage.size() );
     for( auto& v : garbage )
     {
         auto fn = GetObjectFn( v );
-        printf( "%10d %s\n", GetFileSize( fn ), v );
+        printf( "%10" PRIu64 " %s\n", GetFileSize( fn ), v );
         unlink( fn );
     }
 }
@@ -155,7 +156,7 @@ void Lard::Verify()
     }
     if( !corrupted.empty() )
     {
-        printf( "Corrupted objects: %d\n", corrupted.size() );
+        printf( "Corrupted objects: %zu\n", corrupted.size() );
         for( auto& v : corrupted )
         {
             printf( "%s data hash is %s\n", v.first, v.second );
@@ -548,7 +549,7 @@ bool Lard::Decode( const char* data, const char*& sha1, size_t& size, bool errOn
 const char* Lard::Encode( const char* sha1, size_t size )
 {
     static char ret[GitFatMagic+1];
-    sprintf( ret, "#$# git-fat %s %20d\n", sha1, size );
+    sprintf( ret, "#$# git-fat %s %20zu\n", sha1, size );
     return ret;
 }
 
