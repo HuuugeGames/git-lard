@@ -12,6 +12,7 @@
 #include "git/list-objects.h"
 #include "git/submodule.h"
 #include "git/lockfile.h"
+#include "git/repository.h"
 
 #include "glue.h"
 #include "verify.h"
@@ -357,5 +358,32 @@ const char* GetSha1( const char* name )
     else
     {
         return NULL;
+    }
+}
+
+void GetLinks( void (*cb)( const char* ) )
+{
+    struct strbuf fullname = STRBUF_INIT;
+    struct repository *repo = the_repository;
+    repo_read_gitmodules( repo );
+    if( repo != NULL )
+    {
+        repo_read_index( repo );
+        for( int i = 0; i < repo->index->cache_nr; i++ )
+        {
+            const struct cache_entry *ce = repo->index->cache[i];
+
+            strbuf_reset( &fullname );
+            if( repo->submodule_prefix )
+            {
+                strbuf_addstr( &fullname, repo->submodule_prefix );
+            }
+            strbuf_addstr( &fullname, ce->name );
+
+            if( S_ISGITLINK( ce->ce_mode ) )
+            {
+                cb( fullname.buf );
+            }
+        }
     }
 }

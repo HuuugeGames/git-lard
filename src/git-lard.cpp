@@ -17,7 +17,7 @@ struct StdErrDebugCallback : public DebugLog::Callback
 
 void Usage()
 {
-    printf( "Usage: git lard [init|status|push|pull|gc|verify|checkout|find|index-filtered]\n" );
+    printf( "Usage: git lard [init|status|push|pull|gc|verify|checkout|find|index-filtered|submodule]\n" );
     exit( 1 );
 }
 
@@ -40,7 +40,7 @@ int main( int argc, char** argv )
     DBGPRINT( "Command line: " << s.str() );
 #endif
 
-    Lard lard;
+    Lard lard( argv[0] );
 
 #define CSTR(x) strcmp( argv[1], x ) == 0
     if( CSTR( "filter-clean" ) )
@@ -53,7 +53,7 @@ int main( int argc, char** argv )
     }
     else if( CSTR( "init" ) )
     {
-        lard.Init();
+        lard.Init( argc-2, argv+2 );
     }
     else if( CSTR( "status" ) )
     {
@@ -87,6 +87,10 @@ int main( int argc, char** argv )
     {
         printf( "TODO\n" );
         exit( 1 );
+    }
+    else if( CSTR( "submodule" ) )
+    {
+        lard.Submodule( argc-2, argv+2 );
     }
     else
     {
