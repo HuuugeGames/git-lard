@@ -63,7 +63,7 @@ void Lard::Init( int argc, char** argv )
         SetConfigKey( "filter.fat.smudge", "git-fat filter-smudge" );
     }
 
-    if( argc == 1 && strcmp( argv[0], "-r" ) == 0 )
+    if( checkarg( argc, argv, "-r" ) != -1 )
     {
         SubmoduleInit( true );
     }
