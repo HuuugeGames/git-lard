@@ -32,7 +32,8 @@ static int checkarg( int argc, char** argv, const char* arg )
     return -1;
 }
 
-Lard::Lard()
+Lard::Lard( const char* commandName )
+    : m_commandName( commandName )
 {
     auto prefix = SetupGitDirectory();
     if( prefix ) m_prefix = prefix;
@@ -48,18 +49,23 @@ Lard::~Lard()
 {
 }
 
-void Lard::Init()
+void Lard::Init( int argc, char** argv )
 {
     Setup();
     if( IsInitDone() )
     {
-        printf( "Git lard already configured, check configuration in .git/config\n" );
+        printf( "Git lard already configured for %s, check configuration in .git/config\n", GetGitWorkTree() );
         printf( "    Note: migration from git-fat may require changing executable name.\n" );
     }
     else
     {
         SetConfigKey( "filter.fat.clean", "git-fat filter-clean" );
         SetConfigKey( "filter.fat.smudge", "git-fat filter-smudge" );
+    }
+
+    if( checkarg( argc, argv, "-r" ) != -1 )
+    {
+        SubmoduleInit( true );
     }
 }
 
@@ -421,6 +427,7 @@ void Lard::Pull( int argc, char** argv )
 
     bool all = false;
     bool nowalk = true;
+    bool recurseSubmodules = false;
     const char* rev = nullptr;
 
     int n;
@@ -442,6 +449,10 @@ void Lard::Pull( int argc, char** argv )
             {
                 nowalk = false;
             }
+            else if( strcmp( argv[n]+1, "-recurse-submodules" ) == 0 )
+            {
+                recurseSubmodules = true;
+            }
         }
         else
         {
@@ -461,6 +472,11 @@ void Lard::Pull( int argc, char** argv )
     bool ret = ExecuteRsync( cmd, orphans );
 
     Checkout();
+
+    if( recurseSubmodules )
+    {
+        SubmoduleUpdate( true );
+    }
 
     if( !ret )
     {
@@ -497,7 +513,7 @@ void Lard::AssertInitDone()
 {
     if( !IsInitDone() )
     {
-        fprintf( stderr, "fatal: git-lard is not yet configured in this repository.\nRun \"git lard init\" to configure.\n" );
+        fprintf( stderr, "fatal: git-lard is not yet configured in %s repository.\nRun \"git lard init\" to configure.\n", GetGitWorkTree() );
         exit( 1 );
     }
 }
@@ -725,4 +741,145 @@ map_strsize Lard::GenLargeBlobs( int threshold )
     DBGPRINT( s_glb_numlarge << " of " << s_glb_numblobs << " blobs are >= " << threshold << " bytes [elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>( time1 - time0 ).count() << "ms]" );
 
     return ret;
+}
+
+void Lard::Submodule( int argc, char** argv )
+{
+    if( argc < 1 )
+    {
+        printf( "Update fat files located in submodules.\n" );
+        printf( "Usage:\n" );
+        printf( "   git lard submodule update [-r|--recursive] [-i|--init]\n" );
+        printf( "   git lard submodule init [-r|--recursive]\n" );
+
+        return;
+    }
+
+    bool recursive = false;
+    bool init = strcmp( argv[0], "init" ) == 0;
+
+    for( int n=1; n<argc; n++ )
+    {
+        if( *argv[n] == '-' )
+        {
+            const char* param = argv[n];
+            if( *(++param) == '-' )
+            {
+                ++param;
+            }
+
+            if( strcmp( param, "r" ) == 0 || strcmp( param, "recursive" ) == 0 )
+            {
+                recursive = true;
+            }
+            else if( strcmp( param, "i" ) == 0 || strcmp( param, "init" ) == 0 )
+            {
+                init = true;
+            }
+        }
+    }
+
+    Setup();
+
+    if( init )
+    {
+        SubmoduleInit( recursive );
+    }
+
+    if( strcmp( argv[0], "update" ) == 0 )
+    {
+        SubmoduleUpdate( recursive );
+    }
+}
+
+static std::vector<std::string>* ptr_links = nullptr;
+std::vector<std::string> Lard::GetSubmodules()
+{
+    std::vector<std::string> links;
+    ptr_links = &links;
+
+    auto cb = []( const char* catalog ) {
+        const auto path = std::string( GetGitWorkTree() ) + "/" + std::string( catalog );
+        const auto cfgPath = path + "/.gitfat";
+
+        struct stat stats;
+        if( stat( cfgPath.c_str(), &stats ) == 0 )
+        {
+            ptr_links->emplace_back( catalog );
+        }
+    };
+
+    GetLinks( cb );
+    ptr_links = nullptr;
+    return links;
+}
+
+void Lard::SubmoduleInit( bool recurse )
+{
+    char** args = new char*[ 3 + static_cast<unsigned int>( recurse ) ];
+    unsigned int np = 0;
+    args[np++] = strdup( m_commandName );
+    args[np++] = strdup( "init" );
+    if( recurse )
+    {
+        args[np++] = strdup( "-r" );
+    }
+    args[np] = nullptr;
+
+    ExecuteOnSubmodules( args, "Initializing %s submodules.\n" );
+}
+
+void Lard::SubmoduleUpdate( bool recurse )
+{
+    char** args = new char*[ 3 + static_cast<unsigned int>( recurse ) ];
+    unsigned int np = 0;
+    args[np++] = strdup( m_commandName );
+    args[np++] = strdup( "pull" );
+    if( recurse )
+    {
+        args[np++] = strdup( "--recurse-submodules" );
+    }
+    args[np] = nullptr;
+
+    ExecuteOnSubmodules( args, "Pulling %s submodules.\n" );
+}
+
+void Lard::ExecuteOnSubmodules( char** args, const char* msg )
+{
+    const std::vector<std::string>& submodules = GetSubmodules();
+    if( submodules.empty() )
+    {
+        return;
+    }
+
+    const std::string workTree = GetGitWorkTree();
+    printf( msg, workTree.c_str() );
+    for( const auto& submodule : submodules )
+    {
+        pid_t pid = fork();
+        if( pid == 0 ) //child
+        {
+            chdir( std::string( workTree + "/" + submodule ).c_str() );
+            if( execvp( args[0], args ) == -1 )
+            {
+                DBGPRINT( "Executing worker for " << submodule << " failed!\n" );
+                exit( 1 );
+            }
+        }
+        else if( pid > 0 ) //parent
+        {
+            int status;
+            int ret = wait( &status );
+            if( ret == -1 || !WIFEXITED( status ) || WEXITSTATUS( status ) != 0 )
+            {
+                fprintf( stderr, "Error worker failed!\n" );
+                return;
+            }
+        }
+        else //fail
+        {
+            printf( "fork() failed!\n" );
+            return;
+        }
+    }
 }

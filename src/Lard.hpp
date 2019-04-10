@@ -15,10 +15,10 @@ using map_strsize = std::unordered_map<const char*, size_t, StringHelpers::hash,
 class Lard
 {
 public:
-    Lard();
+    Lard( const char* commandName );
     ~Lard();
 
-    void Init();
+    void Init( int argc, char** argv );
     void Status( int argc, char** argv );
     void GC();
     void Verify();
@@ -29,12 +29,18 @@ public:
     void Pull( int argc, char** argv );
     void Push( int argc, char** argv );
 
+    void Submodule( int argc, char** argv );
+
 private:
     void Setup();
     bool IsInitDone();
     void AssertInitDone();
 
     void FilterClean( FILE* in, FILE* out );
+    void SubmoduleUpdate( bool recurse = false );
+    void SubmoduleInit( bool recurse = false );
+    void ExecuteOnSubmodules( char** args, const char* msg );
+    std::vector<std::string> GetSubmodules();
 
     const char* CalcSha1( const char* ptr, size_t size ) const;
     const char* Sha1ToHex( const unsigned char sha1[20] ) const;
@@ -52,6 +58,8 @@ private:
     std::string m_prefix;
     std::string m_gitdir;
     std::string m_objdir;
+
+    const char* m_commandName;
 };
 
 #endif

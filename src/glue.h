@@ -41,6 +41,8 @@ void GetCommitsForBlobs( struct rev_info* revs, int(*find)( const char* ), void(
 
 void PrintBlobCommitInfo( const char* blob, struct commit* commit );
 
+void GetLinks( void(*cb)( const char* ) );
+
 struct CheckoutData
 {
     const char* from;
