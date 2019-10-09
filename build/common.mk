@@ -17,7 +17,7 @@ endif
 
 ifeq ($(shell uname), Darwin)
 INCLUDES += -I/usr/local/opt/openssl/include -I/opt/local/include
-LIBS += /opt/local/lib/libintl.a /usr/local/opt/libiconv/lib/libiconv.a -framework CoreFoundation
+LIBS += /opt/local/lib/libintl.a /opt/local/lib/libiconv.a /opt/local/lib/libcrypto.a /opt/local/lib/libz.a -framework CoreFoundation
 endif
 
 TARGET = git-lard
