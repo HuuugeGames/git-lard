@@ -47,12 +47,14 @@ private:
 
     static bool Decode( const char* data, const char*& sha1, size_t& size, bool errOnFail = false );
     static const char* Encode( const char* sha1, size_t size );
+    static const char* GetFatObjectSha1( const char* fn );
     const char* GetObjectFn( const char* sha1 ) const;
 
     std::vector<const char*> GetRsyncCommand( bool push ) const;
     bool ExecuteRsync( const std::vector<const char*>& cmd, const std::vector<const char*>& files ) const;
 
     set_str ReferencedObjects( bool all, bool nowalk, const char* rev );
+    set_str ReferencedObjectsCwd();
     map_strsize GenLargeBlobs( int threshold );
 
     std::string m_prefix;

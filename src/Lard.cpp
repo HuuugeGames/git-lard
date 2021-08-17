@@ -348,19 +348,11 @@ void Lard::Checkout()
     static shamap blobToCommit;
 
     auto cb = []( const char* fn, const char* localFn, const char* fileSha ) {
-        struct stat sb;
-        if( stat( fn, &sb ) != 0 ) return;
-        if( sb.st_size != GitFatMagic ) return;
-        char buf[GitFatMagic];
-        FILE* f = fopen( fn, "rb" );
-        verify( fread( buf, 1, GitFatMagic, f ) == GitFatMagic );
-        fclose( f );
-        size_t size;
-        const char* sha1;
-        if( !Decode( buf, sha1, size ) ) return;
-
+        const char* sha1 = GetFatObjectSha1( fn );
+        if( !sha1 ) return;
         memcpy( objbufptr, sha1, 40 );
 
+        struct stat sb;
         if( stat( objbuf, &sb ) == 0 )
         {
             fileList.emplace_back( strdup( objbuf ), strdup( fn ) );
@@ -428,6 +420,7 @@ void Lard::Pull( int argc, char** argv )
     bool all = false;
     bool nowalk = true;
     bool recurseSubmodules = false;
+    bool rsyncCwd = true;
     const char* rev = nullptr;
 
     int n;
@@ -444,27 +437,38 @@ void Lard::Pull( int argc, char** argv )
             {
                 all = true;
                 nowalk = false;
+                rsyncCwd = false;
             }
             else if( strcmp( argv[n]+1, "-history" ) == 0 )
             {
                 nowalk = false;
+                rsyncCwd = false;
             }
             else if( strcmp( argv[n]+1, "-recurse-submodules" ) == 0 )
             {
                 recurseSubmodules = true;
             }
+            else if( strcmp( argv[n]+1, "-no-rsync-cwd" ) == 0 )
+            {
+                rsyncCwd = false;
+            }
         }
         else
         {
             auto _rev = GetSha1( argv[n] );
-            if( _rev ) rev = _rev;
+            if( _rev )
+            {
+                rev = _rev;
+                rsyncCwd = false;
+            }
         }
     }
 
     DBGPRINT( "Rev: " << ( rev ? rev : "(none)" ) << ", all: " << all );
 
     const auto catalog = ListDirectory( m_objdir );
-    const auto referenced = ReferencedObjects( all, nowalk, rev );
+    const auto referenced = rsyncCwd ? ReferencedObjectsCwd()
+                                     : ReferencedObjects( all, nowalk, rev );
     const auto orphans = RelativeComplement( referenced, catalog );
     // TODO: match orphans against patterns (in argv, if n<argc)
 
@@ -567,6 +571,25 @@ const char* Lard::Encode( const char* sha1, size_t size )
     static char ret[GitFatMagic+1];
     sprintf( ret, "#$# git-fat %s %20zu\n", sha1, size );
     return ret;
+}
+
+const char* Lard::GetFatObjectSha1( const char* fn )
+{
+    struct stat sb;
+    if( stat( fn, &sb ) != 0 ) return nullptr;
+    if( sb.st_size != GitFatMagic ) return nullptr;
+
+    char buf[GitFatMagic];
+    FILE* f = fopen( fn, "rb" );
+    verify( fread( buf, 1, GitFatMagic, f ) == GitFatMagic );
+    fclose( f );
+
+    size_t size;
+    const char* sha1;
+    if( !Decode( buf, sha1, size ) )
+        return nullptr;
+
+    return sha1;
 }
 
 const char* Lard::GetObjectFn( const char* sha1 ) const
@@ -705,6 +728,28 @@ set_str Lard::ReferencedObjects( bool all, bool nowalk, const char* rev )
     GetFatObjectsFromRevs( revs, nowalk, cb );
     FreeRevs( revs );
 
+    return ret;
+}
+
+set_str Lard::ReferencedObjectsCwd()
+{
+    ParsePathspec( m_prefix.c_str() );
+    if( ReadCache() < 0 )
+    {
+        fprintf( stderr, "index file corrupt\n" );
+        exit( 1 );
+    }
+
+    set_str ret;
+    ptr_set_str = &ret;
+
+    auto cb = []( const char* fn, const char* localFn, const char* fileSha ) {
+        const char* sha1 = GetFatObjectSha1( fn );
+        if( !sha1 ) return;
+        ptr_set_str->emplace( Buffer::Store( sha1, 40 ) );
+    };
+
+    ListFiles( cb );
     return ret;
 }
 
