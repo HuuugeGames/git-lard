@@ -16,8 +16,10 @@ CFLAGS += -DWIN32
 endif
 
 ifeq ($(shell uname), Darwin)
-LIBS += /opt/local/lib/libintl.a /usr/local/opt/libiconv/lib/libiconv.a -framework CoreFoundation
 INCLUDES += -I/opt/local/include
+LIBS += -liconv -framework CoreFoundation
+OPTFLAGS += -DNO_GETTEXT
+CFLAGS += -DNO_GETTEXT
 endif
 
 TARGET = git-lard
