@@ -4,7 +4,7 @@ XXHASHDIR = ../xxHash
 GITLIB = $(GITDIR)/libgit.a
 XDIFFLIB = $(GITDIR)/xdiff/lib.a
 
-INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/..
+INCLUDES = -I$(SRCPATH) -I$(SRCPATH)/.. $(shell pkg-config --cflags openssl)
 
 LIBS := $(GITLIB) $(XDIFFLIB) -lpthread $(shell pkg-config --libs openssl zlib)
 CFLAGS := $(OPTFLAGS) -DSHA1_HEADER='<openssl/sha.h>' -I$(GITDIR)/compat/regex
@@ -16,8 +16,8 @@ CFLAGS += -DWIN32
 endif
 
 ifeq ($(shell uname), Darwin)
-INCLUDES += -I/usr/local/opt/openssl/include -I/opt/local/include
 LIBS += /opt/local/lib/libintl.a /usr/local/opt/libiconv/lib/libiconv.a -framework CoreFoundation
+INCLUDES += -I/opt/local/include
 endif
 
 TARGET = git-lard
