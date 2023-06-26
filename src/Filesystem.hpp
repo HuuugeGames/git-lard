@@ -18,6 +18,9 @@ std::unordered_set<const char*, StringHelpers::hash, StringHelpers::equal_to> Li
 #ifdef __CYGWIN__
 #  define stat64 stat
 #endif
+#ifdef __APPLE__
+#  define stat64 stat
+#endif
 
 #ifndef S_ISREG
 #  define S_ISREG(m) ( ( (m) & S_IFMT ) == S_IFREG )
