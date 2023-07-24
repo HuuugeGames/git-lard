@@ -1,0 +1,14 @@
+To build git-lard under macos you need to install the following ports using MacPorts:
+- gettext (libintl)
+- libiconv
+- openssl
+- zlib
+
+Make sure you have initialized submodules:
+~/git-lard$ git submodule update --init
+
+Execute build command:
+~/git-lard/build$ make release
+
+Copy the resulting git-lard to /usr/local/bin or ~/bin (if it's in your $PATH)
+as git-fat.
