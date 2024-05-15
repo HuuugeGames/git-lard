@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <sstream>
 #include <stdio.h>
@@ -275,11 +276,63 @@ void Lard::Smudge()
     enum { ChunkSize = 64 * 1024 };
 
     Setup();
-    char buf[ChunkSize];
-    auto len = fread( buf, 1, ChunkSize, stdin );
 
     const char* sha1;
     size_t size;
+
+#ifdef __linux__
+    bool done = false;
+    fseek( stdin, 0, SEEK_END );
+    const auto len = ftell( stdin );
+    if( len == GitFatMagic )
+    {
+        char buf[GitFatMagic];
+        fseek( stdin, 0, SEEK_SET );
+        fread( buf, 1, GitFatMagic, stdin );
+        if( Decode( buf, sha1, size ) )
+        {
+            auto fn = GetObjectFn( sha1 );
+            auto srcfd = open( fn, O_RDONLY );
+            if( srcfd >= 0 )
+            {
+                while( size > 0 )
+                {
+                    const auto rd = copy_file_range( srcfd, nullptr, fileno( stdout ), nullptr, size, 0 );
+                    if( rd <= 0 ) break;
+                    size -= rd;
+                }
+                close( srcfd );
+
+                if( size == 0 )
+                {
+                    done = true;
+                    DBGPRINT( "git-lard filter-smudge: restoring from " << fn );
+                }
+                else
+                {
+                    DBGPRINT( "git-lard filter-smudge: invalid size of " << fn );
+                }
+            }
+        }
+    }
+    if( !done )
+    {
+        fseek( stdin, 0, SEEK_SET );
+        char buf[ChunkSize];
+        auto len = fread( buf, 1, ChunkSize, stdin );
+        fwrite( buf, 1, len, stdout );
+        while( len == ChunkSize )
+        {
+            len = fread( buf, 1, ChunkSize, stdin );
+            fwrite( buf, 1, len, stdout );
+        }
+
+        DBGPRINT( "git-lard filter-smudge: not a managed file" );
+    }
+#else
+    char buf[ChunkSize];
+    auto len = fread( buf, 1, ChunkSize, stdin );
+
     if( len == GitFatMagic && Decode( buf, sha1, size ) )
     {
         auto fn = GetObjectFn( sha1 );
@@ -324,6 +377,7 @@ void Lard::Smudge()
 
         DBGPRINT( "git-lard filter-smudge: not a managed file" );
     }
+#endif
 }
 
 void Lard::Checkout()
